@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Везём — доставка вкусного рядом{% endblock %}
+{% block content %}
+<section class="hero-wrap">
+  <div class="container">
+    <div class="hero-card">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> ВКУСНОЕ УЖЕ В ПУТИ</div>
+        <h1>Хорошее настроение<br>можно <em>заказать.</em></h1>
+        <p>Любимые продукты и блюда — выберите, что хочется сегодня. Остальное мы организуем.</p>
+        <form class="hero-search" method="get" action="/" role="search">
+          <span class="search-icon">⌕</span>
+          <input type="search" name="q" value="{{ search_query }}" placeholder="Пицца, кофе, свежие продукты…" aria-label="Поиск товаров">
+          {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+          <button type="submit">Найти</button>
+        </form>
+        <div class="hero-note"><span>✦</span> Удобно выбирать · Просто заказывать · Легко отслеживать</div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="art-sun"></div><div class="art-circle art-circle-one"></div><div class="art-circle art-circle-two"></div><div class="food-emoji">🥡</div><div class="art-label label-top">свежее настроение</div><div class="art-label label-bottom">уже собираем ✳</div></div>
+      <div class="hero-index">01 <span></span> 03</div>
+    </div>
+  </div>
+</section>
+<section class="container category-section">
+  <div class="section-heading"><div><span class="section-kicker">ВЫБИРАЙ ПО НАСТРОЕНИЮ</span><h2>Что сегодня хочется?</h2></div><span class="section-aside">Найдётся что-то для каждого</span></div>
+  <div class="category-list">
+    <a class="category-chip {% if not selected_category %}active{% endif %}" href="/"> <span>✳</span> Всё</a>
+    {% for category in categories %}<a class="category-chip {% if selected_category == category.id|stringformat:'s' %}active{% endif %}" href="/?category={{ category.id }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"><span class="chip-spark">✦</span>{{ category.name }}</a>{% endfor %}
+  </div>
+</section>
+<section class="container catalog-section" id="catalog">
+  <div class="section-heading catalog-heading"><div><span class="section-kicker">СОБРАЛИ ДЛЯ ТЕБЯ</span><h2>{% if search_query %}Результаты поиска{% else %}Популярное рядом{% endif %}</h2></div><span class="section-aside">{% if products %}{{ products|length }} позиций{% else %}Обновляем ассортимент{% endif %}</span></div>
+  {% if search_query %}<p class="search-caption">По запросу «{{ search_query }}»</p>{% endif %}
+  <div class="product-grid">
+    {% for product in products %}
+    <article class="product-card">
+      <div class="product-image-wrap">
+        {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">{% else %}<div class="product-placeholder"><span>✳</span><small>{{ product.category.name }}</small></div>{% endif %}
+        <span class="product-tag">В наличии</span>
+      </div>
+      <div class="product-info"><div class="product-category">{{ product.category.name }}</div><h3>{{ product.name }}</h3><p>{{ product.description|default:'Хороший выбор на сегодня.'|truncatechars:86 }}</p><div class="product-bottom"><strong>{{ product.price }} <small>zł</small></strong><button class="add-button" type="button" title="Добавить в корзину" disabled>+</button></div></div>
+    </article>
+    {% empty %}
+    <div class="empty-state"><div class="empty-icon">⌕</div><h3>{% if search_query %}Ничего не нашли{% else %}Здесь скоро появятся вкусности{% endif %}</h3><p>{% if search_query %}Попробуйте изменить запрос или выбрать другую категорию.{% else %}Добавьте товары и категории через панель администратора — они появятся здесь.{% endif %}</p>{% if search_query %}<a href="/" class="text-link">Сбросить поиск →</a>{% endif %}</div>
+    {% endfor %}
+  </div>
+</section>
+<section class="container promise-strip"><div><span>01</span><strong>Понятный выбор</strong><small>Категории и поиск без лишнего</small></div><div><span>02</span><strong>Честная стоимость</strong><small>Цена видна до оформления</small></div><div><span>03</span><strong>Всё под контролем</strong><small>Статус заказа в личном кабинете</small></div></section>
+{% endblock %}
