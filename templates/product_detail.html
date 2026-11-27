@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — Везём{% endblock %}
+{% block content %}
+<section class="container product-detail-section">
+  {% if product.restaurant %}<a class="back-link" href="{% url 'restaurant_detail' product.restaurant.slug %}">← Вернуться в меню</a>{% else %}<a class="back-link" href="{% url 'home' %}">← Все рестораны</a>{% endif %}
+  <article class="product-detail">
+    <div class="product-detail-image">
+      {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">
+      {% elif product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}">
+      {% else %}<div class="product-placeholder"><span>🍽</span></div>{% endif %}
+    </div>
+    <div class="product-detail-info">
+      <span class="product-category">{{ product.category.name }}</span>
+      <h1>{{ product.name }}</h1>
+      <p class="product-detail-description">{{ product.description|default:"Описание блюда пока не добавлено." }}</p>
+      <div class="product-detail-price">{{ product.price }} <small>₽</small></div>
+      {% if product.stock > 0 %}<p class="stock-available">Доступно для заказа</p>{% else %}<p class="stock-unavailable">Временно нет в наличии</p>{% endif %}
+    </div>
+  </article>
+</section>
+{% endblock %}

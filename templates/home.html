@@ -1,49 +1,48 @@
 {% extends "base.html" %}
-{% block title %}Везём — доставка вкусного рядом{% endblock %}
+{% block title %}Рестораны — Везём{% endblock %}
 {% block content %}
-<section class="hero-wrap">
-  <div class="container">
-    <div class="hero-card">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="eyebrow-dot"></span> ВКУСНОЕ УЖЕ В ПУТИ</div>
-        <h1>Хорошее настроение<br>можно <em>заказать.</em></h1>
-        <p>Любимые продукты и блюда — выберите, что хочется сегодня. Остальное мы организуем.</p>
-        <form class="hero-search" method="get" action="/" role="search">
-          <span class="search-icon">⌕</span>
-          <input type="search" name="q" value="{{ search_query }}" placeholder="Пицца, кофе, свежие продукты…" aria-label="Поиск товаров">
-          {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
-          <button type="submit">Найти</button>
-        </form>
-        <div class="hero-note"><span>✦</span> Удобно выбирать · Просто заказывать · Легко отслеживать</div>
-      </div>
-      <div class="hero-art" aria-hidden="true"><div class="art-sun"></div><div class="art-circle art-circle-one"></div><div class="art-circle art-circle-two"></div><div class="food-emoji">🥡</div><div class="art-label label-top">свежее настроение</div><div class="art-label label-bottom">уже собираем ✳</div></div>
-      <div class="hero-index">01 <span></span> 03</div>
-    </div>
-  </div>
-</section>
-<section class="container category-section">
-  <div class="section-heading"><div><span class="section-kicker">ВЫБИРАЙ ПО НАСТРОЕНИЮ</span><h2>Что сегодня хочется?</h2></div><span class="section-aside">Найдётся что-то для каждого</span></div>
-  <div class="category-list">
-    <a class="category-chip {% if not selected_category %}active{% endif %}" href="/"> <span>✳</span> Всё</a>
-    {% for category in categories %}<a class="category-chip {% if selected_category == category.id|stringformat:'s' %}active{% endif %}" href="/?category={{ category.id }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"><span class="chip-spark">✦</span>{{ category.name }}</a>{% endfor %}
-  </div>
-</section>
-<section class="container catalog-section" id="catalog">
-  <div class="section-heading catalog-heading"><div><span class="section-kicker">СОБРАЛИ ДЛЯ ТЕБЯ</span><h2>{% if search_query %}Результаты поиска{% else %}Популярное рядом{% endif %}</h2></div><span class="section-aside">{% if products %}{{ products|length }} позиций{% else %}Обновляем ассортимент{% endif %}</span></div>
-  {% if search_query %}<p class="search-caption">По запросу «{{ search_query }}»</p>{% endif %}
-  <div class="product-grid">
-    {% for product in products %}
-    <article class="product-card">
-      <div class="product-image-wrap">
-        {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">{% else %}<div class="product-placeholder"><span>✳</span><small>{{ product.category.name }}</small></div>{% endif %}
-        <span class="product-tag">В наличии</span>
-      </div>
-      <div class="product-info"><div class="product-category">{{ product.category.name }}</div><h3>{{ product.name }}</h3><p>{{ product.description|default:'Хороший выбор на сегодня.'|truncatechars:86 }}</p><div class="product-bottom"><strong>{{ product.price }} <small>zł</small></strong><button class="add-button" type="button" title="Добавить в корзину" disabled>+</button></div></div>
-    </article>
+<section class="restaurants-page">
+  <div class="page-heading"><div><span class="eyebrow">ВЫБИРАЙТЕ И ЗАКАЗЫВАЙТЕ</span><h1>Рестораны</h1></div><span class="result-count">{{ total_restaurants }} мест</span></div>
+  <nav class="cuisine-bar" aria-label="Категории ресторанов">
+    <a class="cuisine-chip {% if not selected_cuisine %}selected{% endif %}" href="{% url 'home' %}">Все</a>
+    {% for cuisine in cuisines %}
+      <a class="cuisine-chip {% if selected_cuisine == cuisine %}selected{% endif %}" href="?cuisine={{ cuisine|urlencode }}">{{ cuisine }}</a>
+    {% endfor %}
+    <form method="get" class="sort-form">
+      {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+      {% if selected_cuisine %}<input type="hidden" name="cuisine" value="{{ selected_cuisine }}">{% endif %}
+      <label for="sort">Сортировка</label>
+      <select id="sort" name="sort" onchange="this.form.submit()">
+        <option value="popular" {% if selected_sort == "popular" %}selected{% endif %}>По популярности</option>
+        <option value="rating" {% if selected_sort == "rating" %}selected{% endif %}>По рейтингу</option>
+        <option value="delivery" {% if selected_sort == "delivery" %}selected{% endif %}>По времени доставки</option>
+      </select>
+    </form>
+  </nav>
+  {% if search_query %}<p class="search-hint">Результаты поиска: «{{ search_query }}»</p>{% endif %}
+  <div class="restaurant-grid">
+    {% for restaurant in restaurants %}
+      <a class="restaurant-card" href="{% url 'restaurant_detail' restaurant.slug %}">
+        <div class="restaurant-cover">
+          {% if restaurant.image_url %}<img src="{{ restaurant.image_url }}" alt="{{ restaurant.name }}" loading="lazy">{% else %}<div class="cover-fallback">Везём</div>{% endif %}
+          <span class="favorite-mark" aria-hidden="true">♡</span>
+        </div>
+        <div class="restaurant-meta">
+          <div class="restaurant-name-row"><h2>{{ restaurant.name }}</h2><span class="rating">★ {{ restaurant.rating|floatformat:1 }}{% if restaurant.rating_count %} <small>({{ restaurant.rating_count }})</small>{% endif %}</span></div>
+          <div class="restaurant-subline"><span>{{ restaurant.cuisine }}</span><span>·</span><span>◷ {{ restaurant.delivery_min }}–{{ restaurant.delivery_max }} мин</span></div>
+          <div class="restaurant-tags"><span>{% if restaurant.delivery_fee == 0 %}Бесплатная доставка{% else %}Доставка {{ restaurant.delivery_fee }} ₽{% endif %}</span><span>{{ restaurant.available_dishes }} блюд</span></div>
+        </div>
+      </a>
     {% empty %}
-    <div class="empty-state"><div class="empty-icon">⌕</div><h3>{% if search_query %}Ничего не нашли{% else %}Здесь скоро появятся вкусности{% endif %}</h3><p>{% if search_query %}Попробуйте изменить запрос или выбрать другую категорию.{% else %}Добавьте товары и категории через панель администратора — они появятся здесь.{% endif %}</p>{% if search_query %}<a href="/" class="text-link">Сбросить поиск →</a>{% endif %}</div>
+      <div class="empty-restaurants"><div>⌕</div><h2>Пока ничего не найдено</h2><p>Попробуйте изменить запрос или выбрать другую кухню.</p><a href="{% url 'home' %}">Сбросить фильтры</a></div>
     {% endfor %}
   </div>
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination-bar">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">← Назад</a>{% endif %}
+    <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Дальше →</a>{% endif %}
+  </nav>
+  {% endif %}
 </section>
-<section class="container promise-strip"><div><span>01</span><strong>Понятный выбор</strong><small>Категории и поиск без лишнего</small></div><div><span>02</span><strong>Честная стоимость</strong><small>Цена видна до оформления</small></div><div><span>03</span><strong>Всё под контролем</strong><small>Статус заказа в личном кабинете</small></div></section>
 {% endblock %}

@@ -1,0 +1,29 @@
+/* Дополнительные стили каталога. Подключить после site.css в base.html. */
+.catalog-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 24px;padding:16px;border:1px solid #eeeee9;border-radius:16px;background:#fcfcf8}
+.catalog-filters input,.catalog-filters select{min-width:130px;flex:1;padding:11px 12px;border:1px solid #e6e7dd;border-radius:10px;background:#fff;color:#34362f;font:500 12px Manrope,Arial,sans-serif}
+.catalog-filters input[type=search]{flex:2}
+.catalog-filters button,.details-button{border:0;border-radius:10px;background:var(--lime);padding:11px 16px;color:var(--ink);font:800 12px Manrope,Arial,sans-serif;text-decoration:none;cursor:pointer}
+.filter-reset{padding:10px;color:#777a72;font-size:12px;font-weight:700;text-decoration:none}
+.filter-error{margin:8px 0;color:#a33;font-size:12px}
+.product-card-link{display:block;color:inherit;text-decoration:none}
+.product-card-link:hover{color:inherit}
+.product-card-bottom{padding:0 16px 16px}
+.details-button{display:inline-flex;align-items:center;justify-content:center}
+.catalog-pagination{display:flex;align-items:center;justify-content:center;gap:22px;margin:32px 0 10px;font-size:12px;font-weight:700;color:#777a72}
+.catalog-pagination a,.back-to-catalog{color:#718b27;text-decoration:none;font-weight:800}
+.product-detail-section{padding-top:38px;padding-bottom:65px}
+.back-to-catalog{display:inline-block;margin-bottom:22px;font-size:13px}
+.product-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:38px;padding:25px;border:1px solid #eeeee9;border-radius:22px}
+.product-detail-image{min-height:330px;overflow:hidden;border-radius:16px;background:#f8f7f1}
+.product-detail-image img{width:100%;height:100%;min-height:330px;object-fit:cover}
+.product-detail-image .product-placeholder{min-height:330px}
+.product-detail-info{padding:18px 10px}
+.product-detail-info h1{margin:10px 0 15px;font-size:clamp(27px,4vw,40px);font-weight:800;letter-spacing:-1.5px}
+.product-detail-description{color:#777a72;font-size:14px;line-height:1.8}
+.product-detail-price{margin-top:24px;font-size:28px;font-weight:800}
+.product-detail-price small{font-size:14px;color:#888}
+.stock-available,.stock-unavailable{margin-top:10px;font-size:13px;font-weight:700}
+.stock-available{color:#718b27}
+.stock-unavailable{color:#a33}
+.detail-note{margin-top:25px;padding:12px;border-radius:10px;background:#fcfcf8;color:#888;font-size:11px;line-height:1.6}
+@media(max-width:767px){.catalog-filters{display:grid;grid-template-columns:1fr 1fr}.catalog-filters input,.catalog-filters select{min-width:0;width:100%}.catalog-filters input[type=search]{grid-column:1/-1}.product-detail{grid-template-columns:1fr;gap:12px;padding:14px}.product-detail-image,.product-detail-image img{min-height:230px}.product-detail-info{padding:12px 5px}}

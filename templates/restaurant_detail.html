@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ restaurant.name }} — Везём{% endblock %}
+{% block content %}
+<section class="menu-layout">
+  <div class="menu-main">
+    <a class="back-link" href="{% url 'home' %}">← Все рестораны</a>
+    <header class="restaurant-hero">
+      {% if restaurant.image_url %}<img src="{{ restaurant.image_url }}" alt="{{ restaurant.name }}">{% endif %}
+      <div class="restaurant-hero-copy">
+        <span class="eyebrow">{{ restaurant.cuisine }}</span>
+        <h1>{{ restaurant.name }}</h1>
+        <p>{{ restaurant.description }}</p>
+        <div class="hero-facts"><span>★ {{ restaurant.rating|floatformat:1 }}</span><span>◷ {{ restaurant.delivery_min }}–{{ restaurant.delivery_max }} мин</span><span>{% if restaurant.delivery_fee == 0 %}Бесплатная доставка{% else %}Доставка {{ restaurant.delivery_fee }} ₽{% endif %}</span></div>
+      </div>
+    </header>
+    <nav class="menu-categories">
+      <a href="{% url 'restaurant_detail' restaurant.slug %}" class="{% if not selected_category %}active{% endif %}">Всё меню</a>
+      {% for category in categories %}<a href="?category={{ category.id }}#menu" class="{% if selected_category == category.id|stringformat:'s' %}active{% endif %}">{{ category.name }}</a>{% endfor %}
+    </nav>
+    <form class="menu-search" method="get">
+      {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+      <span>⌕</span><input type="search" name="q" value="{{ search_query }}" placeholder="Искать в меню {{ restaurant.name }}">
+    </form>
+    <div id="menu" class="menu-products">
+      {% for product in products %}
+      <article class="dish-card">
+        <div class="dish-photo">
+          {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+          {% elif product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}<div class="dish-placeholder">🍽</div>{% endif %}
+          <button class="add-dish" type="button" aria-label="Добавить {{ product.name }}" title="Добавление в корзину будет следующим этапом">+</button>
+        </div>
+        <div class="dish-info"><span class="dish-category">{{ product.category.name }}</span><h2>{{ product.name }}</h2><p>{{ product.description|default:"Вкусное блюдо из меню ресторана." }}</p><strong>{{ product.price }} ₽</strong></div>
+      </article>
+      {% empty %}
+      <div class="empty-restaurants"><h2>Блюда не найдены</h2><p>Попробуйте изменить поиск или категорию.</p><a href="{% url 'restaurant_detail' restaurant.slug %}">Показать всё меню</a></div>
+      {% endfor %}
+    </div>
+  </div>
+  <aside class="cart-sidebar"><h2>Корзина</h2><div class="cart-empty-art">🥡</div><h3>Пока пусто</h3><p>Добавьте что-нибудь вкусное из меню</p><div class="cart-sidebar-bottom"><span>Доставка</span><strong>{% if restaurant.delivery_fee == 0 %}Бесплатно{% else %}{{ restaurant.delivery_fee }} ₽{% endif %}</strong></div></aside>
+</section>
+{% endblock %}
