@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     document.addEventListener("submit", async (event) => {
-        const form = event.target.closest("form[data-cart-control]");
+        const form = event.target.closest("form[data-cart-control], form[data-cart-update]");
         if (!form) return;
         event.preventDefault();
         if (form.dataset.pending === "true") return;
@@ -78,13 +78,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
                 credentials: "same-origin",
             });
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                if (response.redirected && response.url.includes("/accounts/login")) {
+                    window.location.assign(response.url);
+                    return;
+                }
+                throw new Error("Сервер вернул страницу вместо ответа корзины. Обновите страницу и попробуйте ещё раз.");
+            }
             const data = await response.json();
+            if (response.status === 401 && data.login_url) {
+                window.location.assign(data.login_url);
+                return;
+            }
             if (!response.ok) throw new Error(data.error || "Не удалось обновить корзину.");
-            document.querySelectorAll(`[data-cart-control][data-product-id="${data.product_id}"]`).forEach((control) => {
-                updateProductControl(control, data.quantity);
-            });
-            const sidebar = document.querySelector("#cart-sidebar");
-            if (sidebar && data.sidebar_html) sidebar.outerHTML = data.sidebar_html;
+            if (form.matches("[data-cart-update]")) {
+                const cartContent = document.querySelector("#cart-detail-content");
+                if (cartContent && data.cart_html) cartContent.innerHTML = data.cart_html;
+            } else {
+                document.querySelectorAll(`[data-cart-control][data-product-id="${data.product_id}"]`).forEach((control) => {
+                    updateProductControl(control, data.quantity);
+                });
+                const sidebar = document.querySelector("#cart-sidebar");
+                if (sidebar && data.sidebar_html) sidebar.outerHTML = data.sidebar_html;
+            }
             const cartLink = document.querySelector(".cart-icon-link");
             if (cartLink) {
                 cartLink.querySelector(".cart-dot")?.remove();

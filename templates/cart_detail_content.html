@@ -1,0 +1,12 @@
+{% if items %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      {% for item in items %}<article class="card cart-detail-item mb-3"><div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="cart-detail-product"><div class="cart-detail-thumb">{% if item.product.image %}<img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">{% elif item.product.image_url %}<img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" loading="lazy">{% else %}<span aria-hidden="true">🍽</span>{% endif %}</div><div><h2 class="h5 mb-1">{{ item.product.name }}</h2><p class="text-muted mb-1">{{ item.product.restaurant.name }} · {{ item.product.price }} ₽ за шт.</p><strong>{{ item.line_total }} ₽</strong></div></div>
+        <form class="cart-product-control cart-detail-quantity" method="post" action="{% url 'cart:update' item.id %}" data-cart-update data-product-id="{{ item.product_id }}" data-product-name="{{ item.product.name }}">{% csrf_token %}<button type="submit" name="action" value="decrement" aria-label="Уменьшить количество: {{ item.product.name }}">−</button><span aria-live="polite">{{ item.quantity }}</span><button type="submit" name="action" value="increment" aria-label="Добавить ещё: {{ item.product.name }}">+</button></form>
+      </div></article>{% endfor %}
+      <form method="post" action="{% url 'cart:clear' %}">{% csrf_token %}<button class="btn btn-link text-danger px-0" type="submit">Очистить корзину</button></form>
+    </div>
+    <aside class="col-lg-4"><div class="card"><div class="card-body"><h2 class="h5">Ваш заказ</h2><p class="d-flex justify-content-between"><span>Товары</span><strong>{{ total }} ₽</strong></p><p class="text-muted">Стоимость доставки будет рассчитана при оформлении.</p><a class="btn btn-dark w-100" href="{% url 'orders:checkout' %}">Перейти к оформлению</a></div></div></aside>
+  </div>
+{% else %}<div class="py-5 text-center"><div class="fs-1">🥡</div><h2>Корзина пока пуста</h2><p>Выберите блюда в меню ресторана.</p><a class="btn btn-dark" href="{% url 'home' %}">Выбрать ресторан</a></div>{% endif %}

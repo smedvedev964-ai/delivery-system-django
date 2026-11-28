@@ -324,6 +324,10 @@ a.brand:hover {
     font-size: 18px;
 }
 
+.cart-detail-quantity {
+    flex: 0 0 auto;
+}
+
 .cart-product-control.is-pending {
     opacity: .65;
     pointer-events: none;

@@ -1,5 +1,8 @@
+from functools import wraps
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -27,6 +30,21 @@ def _is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
 
+def _cart_login_required(view):
+    @wraps(view)
+    def wrapped(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            if _is_ajax(request):
+                from django.urls import reverse
+                return JsonResponse({
+                    "error": "Сессия завершилась. Войдите в аккаунт, чтобы продолжить.",
+                    "login_url": f"{reverse('accounts:login')}?next={request.path}",
+                }, status=401)
+            return redirect_to_login(request.get_full_path())
+        return view(request, *args, **kwargs)
+    return wrapped
+
+
 def _sidebar_payload(request, product):
     cart = Cart.objects.filter(user=request.user).first()
     items = list(cart.items.select_related("product", "product__restaurant") if cart else [])
@@ -52,7 +70,7 @@ def _sidebar_payload(request, product):
     }
 
 
-@login_required
+@_cart_login_required
 def cart_detail(request):
     cart = Cart.objects.filter(user=request.user).first()
     items = cart.items.select_related("product", "product__restaurant") if cart else []
@@ -60,7 +78,7 @@ def cart_detail(request):
     return render(request, "cart_detail.html", {"cart": cart, "items": items, "total": total})
 
 
-@login_required
+@_cart_login_required
 @require_POST
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product.objects.select_related("restaurant"), pk=product_id, is_active=True, category__is_active=True)
@@ -109,26 +127,48 @@ def add_to_cart(request, product_id):
     return _return_to(request, "cart:detail")
 
 
-@login_required
+@_cart_login_required
 @require_POST
 def update_cart_item(request, item_id):
     cart = get_object_or_404(Cart, user=request.user)
     item = get_object_or_404(CartItem.objects.select_related("product"), cart=cart, pk=item_id)
-    try:
-        quantity = int(request.POST.get("quantity", "0"))
-    except (TypeError, ValueError):
-        quantity = 0
+    action = request.POST.get("action")
+    if action == "increment":
+        quantity = item.quantity + 1
+    elif action == "decrement":
+        quantity = item.quantity - 1
+    else:
+        try:
+            quantity = int(request.POST.get("quantity", "0"))
+        except (TypeError, ValueError):
+            quantity = 0
+    error = None
     if quantity == 0:
         item.delete()
-        messages.success(request, "Блюдо удалено из корзины.")
+        if not _is_ajax(request):
+            messages.success(request, "Блюдо удалено из корзины.")
     elif quantity < 0:
-        messages.error(request, "Количество должно быть положительным числом.")
-    elif not item.product.is_active or quantity > item.product.stock:
-        messages.error(request, f"Доступно только {item.product.stock} шт. блюда «{item.product.name}».")
+        error = "Количество должно быть положительным числом."
+    elif action != "decrement" and (not item.product.is_active or quantity > item.product.stock):
+        error = f"Доступно только {item.product.stock} шт. блюда «{item.product.name}»."
     else:
         item.quantity = quantity
         item.save(update_fields=["quantity"])
-        messages.success(request, "Корзина обновлена.")
+        if not _is_ajax(request):
+            messages.success(request, "Корзина обновлена.")
+    if _is_ajax(request):
+        if error:
+            return JsonResponse({"error": error}, status=400)
+        cart = Cart.objects.filter(user=request.user).first()
+        items = list(cart.items.select_related("product", "product__restaurant") if cart else [])
+        total = sum((cart_item.line_total for cart_item in items), start=0)
+        context = {"cart": cart, "items": items, "total": total, "request": request}
+        return JsonResponse({
+            "cart_html": render_to_string("cart_detail_content.html", context, request=request),
+            "cart_has_items": bool(items),
+        })
+    if error:
+        messages.error(request, error)
     return redirect("cart:detail")
 
 
