@@ -616,6 +616,33 @@ a.brand:hover {
     transition: transform var(--ease), box-shadow var(--ease);
 }
 
+.cart-detail-product {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: center;
+    gap: 14px;
+}
+
+.cart-detail-thumb {
+    display: grid;
+    width: 76px;
+    height: 76px;
+    flex: 0 0 76px;
+    overflow: hidden;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 30px;
+}
+
+.cart-detail-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .cart-detail-item:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-card);
