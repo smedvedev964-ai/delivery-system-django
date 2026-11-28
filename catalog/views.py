@@ -85,12 +85,14 @@ def restaurant_detail(request, slug):
         products__is_active=True, products__stock__gt=0
     ).distinct().order_by("name")
     cart_items = []
+    cart_quantities = {}
     cart_total = 0
     delivery_fee = 0
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).first()
         if cart:
             cart_items = list(cart.items.select_related("product", "product__restaurant"))
+            cart_quantities = {item.product_id: item.quantity for item in cart_items}
             cart_total = sum((item.line_total for item in cart_items), start=0)
             if cart_items:
                 cart_restaurant = cart_items[0].product.restaurant
@@ -100,6 +102,9 @@ def restaurant_detail(request, slug):
                     threshold = cart_restaurant.free_delivery_threshold
                     if threshold is None or cart_total < threshold:
                         delivery_fee = cart_restaurant.delivery_fee
+    products = list(products)
+    for product in products:
+        product.cart_quantity = cart_quantities.get(product.pk, 0)
     return render(request, "restaurant_detail.html", {
         "restaurant": restaurant,
         "products": products,

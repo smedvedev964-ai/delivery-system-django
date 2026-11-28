@@ -1,0 +1,20 @@
+<aside class="cart-sidebar" id="cart-sidebar" aria-label="Корзина">
+  <div class="cart-sidebar-heading"><h2>Ваш заказ</h2><span>{{ cart_items|length }} поз.</span></div>
+  {% if cart_items %}
+    <div class="cart-preview-items">
+      {% for item in cart_items %}
+        <div class="cart-preview-item">
+          <div class="cart-preview-name"><strong>{{ item.product.name }}</strong><span>{{ item.product.price }} ₽ × {{ item.quantity }}</span></div>
+          <strong class="cart-preview-total">{{ item.line_total }} ₽</strong>
+          {% include "cart_product_control.html" with product=item.product quantity=item.quantity compact=True %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="cart-preview-summary"><div><span>Блюда</span><strong>{{ cart_total }} ₽</strong></div><div><span>Доставка</span><strong>{% if cart_delivery_fee %}{{ cart_delivery_fee }} ₽{% else %}Бесплатно{% endif %}</strong></div><div class="cart-preview-grand"><span>Итого</span><strong>{{ cart_grand_total }} ₽</strong></div></div>
+    <a class="cart-checkout-button" href="{% url 'cart:detail' %}">Перейти к оформлению <span>→</span></a>
+    <p class="cart-demo-note">Оплата в учебной версии демонстрационная</p>
+  {% else %}
+    <div class="cart-empty-state"><span aria-hidden="true">🥡</span><h3>Корзина пока пуста</h3><p>Добавьте блюдо — заказ появится здесь.</p></div>
+    {% if user.is_authenticated %}<div class="cart-sidebar-bottom"><span>Доставка</span><strong>{% if restaurant.delivery_policy == "free" %}Бесплатно{% else %}{{ restaurant.delivery_fee }} ₽{% endif %}</strong></div>{% else %}<a class="cart-checkout-button" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">Войти, чтобы заказать <span>→</span></a>{% endif %}
+  {% endif %}
+</aside>

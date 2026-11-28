@@ -253,6 +253,96 @@ a.brand:hover {
     box-shadow: 0 5px 15px rgb(36 30 9 / 20%);
 }
 
+.cart-product-control {
+    position: relative;
+    display: flex;
+    width: max-content;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1px solid rgb(255 255 255 / 85%);
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 5px 15px rgb(36 30 9 / 20%);
+    color: var(--text);
+    padding: 3px;
+    margin: 0;
+    transition: transform var(--ease), opacity var(--ease), box-shadow var(--ease);
+}
+
+.dish-photo > .cart-product-control {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+.cart-product-control button {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text);
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    transition: background var(--ease), transform var(--ease);
+}
+
+.cart-product-control button:hover {
+    background: rgb(36 36 31 / 10%);
+}
+
+.cart-product-control button:active {
+    transform: scale(.9);
+}
+
+.cart-product-control > span {
+    min-width: 18px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.cart-product-control-compact {
+    grid-column: 1 / -1;
+    min-height: 32px;
+    justify-self: start;
+    gap: 1px;
+    box-shadow: none;
+}
+
+.cart-product-control-compact button {
+    width: 26px;
+    height: 26px;
+    flex-basis: 26px;
+    font-size: 18px;
+}
+
+.cart-product-control.is-pending {
+    opacity: .65;
+    pointer-events: none;
+}
+
+.cart-control-error {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    width: max-content;
+    max-width: min(260px, 75vw);
+    border-radius: 8px;
+    background: var(--text);
+    color: #fff;
+    padding: 6px 9px;
+    font-size: 11px;
+    box-shadow: var(--shadow-card);
+}
+
 .menu-layout {
     animation: page-enter 420ms both;
 }

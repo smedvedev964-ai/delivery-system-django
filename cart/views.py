@@ -1,7 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
@@ -21,6 +23,35 @@ def _cart_for(user):
     return cart
 
 
+def _is_ajax(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def _sidebar_payload(request, product):
+    cart = Cart.objects.filter(user=request.user).first()
+    items = list(cart.items.select_related("product", "product__restaurant") if cart else [])
+    subtotal = sum((item.line_total for item in items), start=0)
+    restaurant = items[0].product.restaurant if items else product.restaurant
+    delivery_fee = 0
+    if items:
+        from orders.services import calculate_delivery_fee
+        delivery_fee = calculate_delivery_fee(restaurant=restaurant, subtotal=subtotal)
+    context = {
+        "cart_items": items,
+        "cart_total": subtotal,
+        "cart_delivery_fee": delivery_fee,
+        "cart_grand_total": subtotal + delivery_fee,
+        "restaurant": restaurant,
+        "request": request,
+        "user": request.user,
+    }
+    return {
+        "sidebar_html": render_to_string("cart_sidebar.html", context, request=request),
+        "cart_has_items": bool(items),
+        "quantity": next((item.quantity for item in items if item.product_id == product.pk), 0),
+    }
+
+
 @login_required
 def cart_detail(request):
     cart = Cart.objects.filter(user=request.user).first()
@@ -33,18 +64,15 @@ def cart_detail(request):
 @require_POST
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product.objects.select_related("restaurant"), pk=product_id, is_active=True, category__is_active=True)
-    if not product.restaurant_id or product.stock < 1:
+    is_ajax = _is_ajax(request)
+    action = request.POST.get("action", "increment")
+    if not product.restaurant_id or (product.stock < 1 and action != "decrement"):
+        if is_ajax:
+            return JsonResponse({"error": "Это блюдо сейчас нельзя добавить в корзину."}, status=400)
         messages.error(request, "Это блюдо сейчас нельзя добавить в корзину.")
         return _return_to(request, "home")
-    try:
-        quantity = int(request.POST.get("quantity", "1"))
-    except (TypeError, ValueError):
-        quantity = 0
-    if quantity < 1:
-        messages.error(request, "Укажите количество от 1.")
-        return _return_to(request, "home")
-
     cart = _cart_for(request.user)
+    error = None
     with transaction.atomic():
         current = list(cart.items.select_related("product").select_for_update())
         existing = next((item for item in current if item.product_id == product.pk), None)
@@ -52,15 +80,32 @@ def add_to_cart(request, product_id):
             cart.items.all().delete()
             current = []
             existing = None
-        if quantity + (existing.quantity if existing else 0) > product.stock:
-            messages.error(request, f"Доступно только {product.stock} шт. блюда «{product.name}».")
-        elif existing:
-            existing.quantity += quantity
-            existing.save(update_fields=["quantity"])
-            messages.success(request, f"Количество блюда «{product.name}» обновлено.")
+        current_quantity = existing.quantity if existing else 0
+        if action == "decrement":
+            if existing and current_quantity > 1:
+                existing.quantity -= 1
+                existing.save(update_fields=["quantity"])
+            elif existing:
+                existing.delete()
+        elif action == "increment":
+            if current_quantity >= product.stock:
+                error = f"Доступно только {product.stock} шт. блюда «{product.name}»."
+            elif existing:
+                existing.quantity += 1
+                existing.save(update_fields=["quantity"])
+            else:
+                CartItem.objects.create(cart=cart, product=product, quantity=1)
         else:
-            CartItem.objects.create(cart=cart, product=product, quantity=quantity)
-            messages.success(request, f"Блюдо «{product.name}» добавлено в корзину.")
+            error = "Не удалось изменить количество блюда."
+    if error:
+        if is_ajax:
+            return JsonResponse({"error": error}, status=400)
+        messages.error(request, error)
+        return _return_to(request, "home")
+    if is_ajax:
+        payload = _sidebar_payload(request, product)
+        payload["product_id"] = product.pk
+        return JsonResponse(payload)
     return _return_to(request, "cart:detail")
 
 

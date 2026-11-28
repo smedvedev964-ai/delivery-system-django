@@ -1,0 +1,11 @@
+<form method="post" action="{% url 'cart:add' product.id %}" class="cart-product-control{% if compact %} cart-product-control-compact{% endif %}" data-cart-control data-product-id="{{ product.id }}" data-product-name="{{ product.name }}">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.path }}">
+  {% if quantity %}
+    <button type="submit" name="action" value="decrement" aria-label="Уменьшить количество: {{ product.name }}">−</button>
+    <span aria-live="polite">{{ quantity }}</span>
+    <button type="submit" name="action" value="increment" aria-label="Добавить ещё: {{ product.name }}">+</button>
+  {% else %}
+    <button type="submit" name="action" value="increment" aria-label="Добавить {{ product.name }} в корзину">+</button>
+  {% endif %}
+</form>
