@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Настройка профиля — Везём{% endblock %}
 {% block content %}
-<section class="container py-5" style="max-width: 560px">
-  <p class="text-muted mb-2">Шаг {{ step_number }} из {{ step_count }}</p>
-  <div class="progress mb-4" role="progressbar" aria-label="Заполнение профиля" aria-valuenow="{{ step_number }}" aria-valuemin="0" aria-valuemax="{{ step_count }}"><div class="progress-bar bg-dark" style="width: {% widthratio step_number step_count 100 %}%"></div></div>
-  <h1>{{ title }}</h1><p class="text-muted mb-4">{{ description }}</p>
+<section class="onboarding-panel">
+  <div class="progress onboarding-progress mb-4" role="progressbar" aria-label="Заполнение профиля" aria-valuenow="{{ step_number }}" aria-valuemin="0" aria-valuemax="{{ step_count }}"><div class="progress-bar" style="width: {% widthratio step_number step_count 100 %}%"></div></div>
+  <h1 class="mb-4">{{ title }}</h1>
   <form method="post" class="card"><div class="card-body">{% csrf_token %}
     {% for field in form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}</div>{% endfor %}
     <button class="btn btn-dark w-100" type="submit">Продолжить</button>

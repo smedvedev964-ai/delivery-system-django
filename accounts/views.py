@@ -76,17 +76,16 @@ def onboarding_step(request, step):
             return _next_onboarding_step(step)
 
     titles = {
-        "name": ("Как к вам обращаться?", "Имя поможет нам подписывать ваши заказы."),
-        "phone": ("Как с вами связаться?", "Телефон пригодится курьеру, если нужно уточнить доставку."),
-        "address": ("Куда доставлять?", "Адрес сохранится в профиле. Его можно будет изменить перед заказом."),
+        "name": "Как вас зовут?",
+        "phone": "Номер телефона",
+        "address": "Адрес доставки",
     }
     return render(request, "accounts/onboarding_step.html", {
         "form": form,
         "step": step,
         "step_number": ONBOARDING_STEPS.index(step) + 1,
         "step_count": len(ONBOARDING_STEPS),
-        "title": titles[step][0],
-        "description": titles[step][1],
+        "title": titles[step],
     })
 
 
