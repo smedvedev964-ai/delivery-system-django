@@ -1,12 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Регистрация — Везём{% endblock %}
+{% block title %}Создать аккаунт — Везём{% endblock %}
 {% block content %}
-<section class="container py-5" style="max-width: 620px">
-  <h1 class="mb-4">Создать аккаунт</h1>
+<section class="container py-5" style="max-width: 520px">
+  <p class="text-muted mb-2">Сначала — аккаунт</p>
+  <h1 class="mb-2">Начнём с аккаунта</h1>
+  <p class="text-muted mb-4">Укажите почту и придумайте пароль. Имя, телефон и адрес можно добавить после регистрации.</p>
   <form method="post" class="card"><div class="card-body">{% csrf_token %}
-    {% for field in form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}</div>{% endfor %}
-    <button class="btn btn-dark w-100" type="submit">Зарегистрироваться</button>
+    {% for field in form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}{% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}</div>{% endfor %}
+    <button class="btn btn-dark w-100" type="submit">Создать аккаунт</button>
   </div></form>
-  <p class="mt-3">Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a></p>
+  <p class="mt-3">Уже зарегистрированы? <a href="{% url 'accounts:login' %}">Войти</a></p>
 </section>
 {% endblock %}

@@ -21,6 +21,12 @@ def checkout(request):
     if not items:
         messages.info(request, "Добавьте блюда в корзину перед оформлением заказа.")
         return redirect("cart:detail")
+    if not request.user.first_name:
+        messages.info(request, "Укажите имя, чтобы курьер знал, кому передать заказ.")
+        return redirect("accounts:onboarding_step", step="name")
+    if not request.user.phone:
+        messages.info(request, "Укажите номер телефона для связи по доставке.")
+        return redirect("accounts:onboarding_step", step="phone")
 
     if request.method == "GET":
         request.session.setdefault("checkout_key", uuid.uuid4().hex)
