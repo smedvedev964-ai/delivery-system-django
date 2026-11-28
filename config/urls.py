@@ -9,6 +9,8 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("restaurant/<slug:slug>/", views.restaurant_detail, name="restaurant_detail"),
     path("product/<int:pk>/", views.product_detail, name="product_detail"),
+    path("cart/", include("cart.urls")),
+    path("orders/", include("orders.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
 ]
 if settings.DEBUG:

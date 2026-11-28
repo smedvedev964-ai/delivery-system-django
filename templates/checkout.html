@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Оформление заказа — Везём{% endblock %}
+{% block content %}
+<section class="container py-4">
+  <a class="back-link" href="{% url 'cart:detail' %}">← Вернуться в корзину</a><h1 class="my-3">Оформление заказа</h1>
+  {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+  <div class="row g-4"><div class="col-lg-7">
+    <form method="post" class="card"><div class="card-body">{% csrf_token %}<input type="hidden" name="idempotency_key" value="{{ checkout_key }}">
+      <h2 class="h5">Адрес доставки</h2>
+      {% if addresses %}<label class="form-label" for="address_id">Сохранённый адрес</label><select class="form-select mb-3" id="address_id" name="address_id"><option value="">Добавить новый адрес</option>{% for address in addresses %}<option value="{{ address.id }}" {% if forloop.first %}selected{% endif %}>{{ address.city }}, {{ address.street }}, д. {{ address.house }}{% if address.apartment %}, кв. {{ address.apartment }}{% endif %}</option>{% endfor %}</select>{% endif %}
+      <div class="row g-2"><div class="col-md-6"><label class="form-label" for="city">Город</label><input class="form-control" id="city" name="city" maxlength="100" {% if not addresses %}required{% endif %}></div><div class="col-md-6"><label class="form-label" for="street">Улица</label><input class="form-control" id="street" name="street" maxlength="150" {% if not addresses %}required{% endif %}></div><div class="col-md-6"><label class="form-label" for="house">Дом</label><input class="form-control" id="house" name="house" maxlength="30" {% if not addresses %}required{% endif %}></div><div class="col-md-6"><label class="form-label" for="apartment">Квартира</label><input class="form-control" id="apartment" name="apartment" maxlength="30"></div></div>
+      <label class="form-label mt-3" for="address_comment">Комментарий к адресу</label><input class="form-control" id="address_comment" name="comment" maxlength="255">
+      <label class="form-label mt-3" for="order_comment">Комментарий к заказу</label><textarea class="form-control" id="order_comment" name="order_comment" rows="3"></textarea>
+      <button class="btn btn-dark mt-4" type="submit">Подтвердить заказ</button>
+    </div></form>
+  </div><aside class="col-lg-5"><div class="card"><div class="card-body"><h2 class="h5">Состав заказа</h2>{% for item in items %}<p class="d-flex justify-content-between"><span>{{ item.product.name }} × {{ item.quantity }}</span><strong>{{ item.line_total }} ₽</strong></p>{% endfor %}<p class="text-muted">Стоимость и доступность блюд будут проверены при подтверждении. Доставка рассчитывается по тарифу ресторана.</p></div></div></aside></div>
+</section>
+{% endblock %}

@@ -25,10 +25,14 @@
     </form>
     <button class="address-pill" type="button" title="Адрес можно будет указать в личном кабинете">⌖ <span>Укажите адрес</span></button>
     <div class="top-time">◷ <span>Сейчас</span></div>
+    <a class="top-icon" href="{% url 'cart:detail' %}" aria-label="Корзина" title="Корзина">🛒</a>
     <a class="top-icon" href="/accounts/login/" aria-label="Войти">♙</a>
   </div>
 </header>
-<main>{% block content %}{% endblock %}</main>
+<main>
+  {% if messages %}<div class="container pt-3" aria-live="polite">{% for message in messages %}<div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} mb-2">{{ message }}</div>{% endfor %}</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
 <footer class="site-footer">
   <div class="footer-inner">
     <span class="brand footer-brand"><span class="brand-mark">в</span><span>везём<span class="brand-dot">.</span></span></span>

@@ -40,7 +40,10 @@
           {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
           {% elif product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
           {% else %}<div class="dish-placeholder">🍽</div>{% endif %}
-          <button class="add-dish" type="button" aria-label="Добавить {{ product.name }}" title="Добавление в корзину будет следующим этапом">+</button>
+          <form method="post" action="{% url 'cart:add' product.id %}">
+            {% csrf_token %}<input type="hidden" name="next" value="{% url 'restaurant_detail' restaurant.slug %}">
+            <button class="add-dish" type="submit" aria-label="Добавить {{ product.name }} в корзину" title="Добавить в корзину">+</button>
+          </form>
         </div>
         <div class="dish-info"><span class="dish-category">{{ product.category.name }}</span><h2>{{ product.name }}</h2><p>{{ product.description|default:"Вкусное блюдо из меню ресторана." }}</p><strong>{{ product.price }} ₽</strong></div>
       </article>
@@ -49,7 +52,7 @@
       {% endfor %}
     </div>
   </div>
-  <aside class="cart-sidebar"><h2>Корзина</h2><div class="cart-empty-art">🥡</div><h3>Пока пусто</h3><p>Добавьте что-нибудь вкусное из меню</p><div class="cart-sidebar-bottom">
+  <aside class="cart-sidebar"><h2>Корзина</h2><div class="cart-empty-art">🥡</div><h3>Выберите блюда</h3><p>Добавьте их в корзину, чтобы перейти к оформлению</p><a class="btn btn-dark w-100" href="{% url 'cart:detail' %}">Открыть корзину</a><div class="cart-sidebar-bottom">
     <span>Доставка</span>
     <strong>
       {% if restaurant.delivery_policy == "free" %}
