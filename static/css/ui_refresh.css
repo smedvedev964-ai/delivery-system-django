@@ -3,24 +3,24 @@
     color-scheme: light;
     --bg: #f7f6f2;
     --panel: #fff;
-    --panel-raised: #fffdf7;
-    --panel-soft: #f0efe9;
+    --panel-raised: #fff;
+    --panel-soft: #fff;
     --text: #24241f;
-    --muted: #74746d;
-    --muted-strong: #53534d;
-    --line: #e7e5dc;
-    --accent: #ffd34e;
-    --accent-hover: #ffca24;
-    --success-bg: #e9f3e4;
-    --success-text: #3b6536;
-    --danger: #b9473d;
+    --muted: #5d5c56;
+    --muted-strong: #3e3d37;
+    --line: #deddd7;
+    --accent: #ffd447;
+    --accent-hover: #f2c52e;
+    --success-bg: #ffd447;
+    --success-text: #24241f;
+    --danger: #24241f;
     --shadow-card: 0 12px 32px rgb(44 39 23 / 8%);
     --ease: 240ms cubic-bezier(.2, .75, .25, 1);
 }
 
 html {
     background: var(--bg);
-    scrollbar-color: #e5bd36 #eeece5;
+    scrollbar-color: var(--accent) var(--bg);
     scrollbar-width: thin;
 }
 
@@ -36,17 +36,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: #eeece5;
+    background: var(--bg);
 }
 
 ::-webkit-scrollbar-thumb {
-    border: 2px solid #eeece5;
+    border: 2px solid var(--bg);
     border-radius: 20px;
-    background: #e5bd36;
+    background: var(--accent);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #cda51e;
+    background: var(--accent-hover);
 }
 
 .topbar {
@@ -62,6 +62,13 @@ body {
 .cart-sidebar h3,
 .cart-preview-item strong,
 .cart-preview-summary strong {
+    color: var(--text);
+}
+
+.brand-mark {
+    border: 0;
+    border-radius: 50%;
+    background: var(--accent);
     color: var(--text);
 }
 
@@ -156,8 +163,8 @@ body {
 
 .cuisine-chip:hover,
 .cuisine-chip.selected {
-    background: #fff2c5;
-    color: #6e5310;
+    background: var(--accent);
+    color: var(--text);
 }
 
 .sort-form select,
@@ -168,8 +175,35 @@ body {
 
 .menu-categories a.active,
 .menu-categories a:hover {
-    border-bottom-color: #d5a900;
-    color: #4f3c00;
+    border-bottom-color: var(--accent);
+    color: var(--text);
+}
+
+.rating {
+    color: var(--text);
+}
+
+.rating small,
+.result-count,
+.restaurant-subline {
+    color: var(--muted);
+}
+
+.restaurant-tags span {
+    background: var(--accent);
+    color: var(--text);
+}
+
+.alert-danger,
+.alert-info,
+.alert-success {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--text);
+}
+
+.text-danger {
+    color: var(--text) !important;
 }
 
 .menu-search:focus-within,
@@ -465,6 +499,44 @@ body {
     color: #fff;
 }
 
+.onboarding-panel form.card {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: #fff;
+}
+
+.onboarding-panel .form-label {
+    color: #fff;
+    font-weight: 700;
+}
+
+.onboarding-panel .text-danger {
+    color: #fff !important;
+}
+
+.onboarding-panel .form-control {
+    border-color: #fff;
+    background: #fff;
+    color: var(--text);
+}
+
+.onboarding-panel .form-control::placeholder {
+    color: var(--muted);
+}
+
+.onboarding-panel .btn-dark {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--text);
+}
+
+.onboarding-panel .btn-dark:hover {
+    border-color: var(--accent-hover);
+    background: var(--accent-hover);
+    color: var(--text);
+}
+
 .onboarding-panel .onboarding-step-label {
     display: flex;
     justify-content: space-between;
@@ -491,12 +563,12 @@ body {
 }
 
 .onboarding-panel .btn-link {
-    color: #f2d978;
+    color: var(--accent);
     text-decoration: none;
 }
 
 .onboarding-panel .btn-link:hover {
-    color: #ffe9a1;
+    color: var(--accent-hover);
     text-decoration: underline;
 }
 
