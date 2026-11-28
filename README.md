@@ -65,3 +65,4 @@ python manage.py test --settings=config.test_settings
 ## Материалы для защиты
 - ER-диаграмма: [docs/er_diagram.md](docs/er_diagram.md).
 - Роли и сценарий демонстрации: [docs/demo_guide.md](docs/demo_guide.md).
+- Руководство пользователя, сотрудников и Django Admin: [docs/manual/README.md](docs/manual/README.md).
