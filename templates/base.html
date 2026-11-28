@@ -17,10 +17,10 @@
 <body>
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand" aria-label="Везём">
+    <a class="brand" href="{% url 'home' %}" aria-label="Везём — на главную">
       <span class="brand-mark">в</span>
       <span>везём<span class="brand-dot">.</span></span>
-    </div>
+    </a>
     <form class="global-search" method="get" action="{% url 'home' %}">
       <span>⌕</span><input type="search" name="q" placeholder="Искать рестораны и кухню" value="{{ search_query|default:'' }}" aria-label="Поиск ресторанов">
     </form>
@@ -42,7 +42,7 @@
 </main>
 <footer class="site-footer">
   <div class="footer-inner">
-    <span class="brand footer-brand"><span class="brand-mark">в</span><span>везём<span class="brand-dot">.</span></span></span>
+    <a class="brand footer-brand" href="{% url 'home' %}" aria-label="Везём — на главную"><span class="brand-mark">в</span><span>везём<span class="brand-dot">.</span></span></a>
     <span>Доставка любимой еды</span>
     <span>Учебный проект · 2026</span>
   </div>

@@ -65,6 +65,14 @@ body {
     color: var(--text);
 }
 
+a.brand {
+    text-decoration: none;
+}
+
+a.brand:hover {
+    color: var(--text);
+}
+
 .brand-mark {
     border: 0;
     border-radius: 50%;
