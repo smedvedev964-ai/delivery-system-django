@@ -8,7 +8,7 @@
       {% if restaurant.image_url %}<img src="{{ restaurant.image_url }}" alt="{{ restaurant.name }}">{% endif %}
       <div class="restaurant-hero-copy">
         <span class="eyebrow">{{ restaurant.cuisine }}</span>
-        <div class="restaurant-title-row">{% if restaurant.logo_url %}<img class="restaurant-title-logo" src="{{ restaurant.logo_url }}" alt="Логотип {{ restaurant.name }}">{% endif %}<h1>{{ restaurant.name }}</h1></div>
+        <h1>{{ restaurant.name }}</h1>
         <p>{{ restaurant.description }}</p>
         <div class="hero-facts">
           <span>★ {{ restaurant.rating|floatformat:1 }}</span>
