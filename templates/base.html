@@ -41,7 +41,6 @@
 </header>
 <main>
   {% if messages %}<div class="container pt-3" aria-live="polite">{% for message in messages %}<div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} mb-2">{{ message }}</div>{% endfor %}</div>{% endif %}
-  {% if not user.is_authenticated %}<div class="container text-end pt-2"><a href="{% url 'accounts:register' %}">Создать аккаунт</a></div>{% endif %}
   {% block content %}{% endblock %}
 </main>
 <footer class="site-footer">
