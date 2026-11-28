@@ -184,8 +184,7 @@ select:focus-visible {
     color: #777;
 }
 
-.address-pill,
-.top-time {
+.address-pill {
     flex: 0 0 auto;
     border: 1px solid transparent;
     border-radius: 999px;
@@ -1110,10 +1109,6 @@ a.address-pill {
         width: 32px;
         height: 32px;
         font-size: 19px;
-    }
-
-    .top-time {
-        display: none;
     }
 
     .global-search {
