@@ -28,6 +28,10 @@
     <div class="top-time">◷ <span>Сейчас</span></div>
     <a class="top-icon cart-icon-link" href="{% url 'cart:detail' %}" aria-label="Корзина" title="Корзина">🛒{% if cart_has_items %}<span class="cart-dot" aria-hidden="true"></span>{% endif %}</a>
     {% if user.is_authenticated %}
+      {% if user.role == "client" %}<a class="top-icon" href="{% url 'orders:history' %}" aria-label="Мои заказы" title="Мои заказы">▤</a>{% endif %}
+      <a class="top-icon" href="{% url 'notifications:list' %}" aria-label="Уведомления" title="Уведомления">♧</a>
+      {% if user.role == "manager" or user.role == "admin" %}<a class="top-icon" href="{% url 'orders:manager' %}" aria-label="Управление заказами" title="Управление заказами">☷</a><a class="top-icon" href="{% url 'analytics:dashboard' %}" aria-label="Отчёты" title="Отчёты">▥</a>{% endif %}
+      {% if user.role == "courier" %}<a class="top-icon" href="{% url 'delivery:courier' %}" aria-label="Мои доставки" title="Мои доставки">➤</a>{% endif %}
       <a class="top-icon" href="{% url 'accounts:profile' %}" aria-label="Профиль" title="Профиль">♙</a>
       <form class="d-inline" method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="top-icon border-0 bg-transparent" type="submit" aria-label="Выйти" title="Выйти">↪</button></form>
     {% else %}

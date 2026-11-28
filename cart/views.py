@@ -81,25 +81,37 @@ def cart_detail(request):
 @_cart_login_required
 @require_POST
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product.objects.select_related("restaurant"), pk=product_id, is_active=True, category__is_active=True)
     is_ajax = _is_ajax(request)
     action = request.POST.get("action", "increment")
-    if not product.restaurant_id or (product.stock < 1 and action != "decrement"):
-        if is_ajax:
-            return JsonResponse({"error": "Это блюдо сейчас нельзя добавить в корзину."}, status=400)
-        messages.error(request, "Это блюдо сейчас нельзя добавить в корзину.")
-        return _return_to(request, "home")
     cart = _cart_for(request.user)
     error = None
+    product = None
     with transaction.atomic():
-        current = list(cart.items.select_related("product").select_for_update())
-        existing = next((item for item in current if item.product_id == product.pk), None)
-        if current and any(item.product.restaurant_id != product.restaurant_id for item in current):
+        cart = Cart.objects.select_for_update().get(pk=cart.pk, user=request.user)
+        product = (
+            Product.objects.select_related("category")
+            .select_for_update(of=("self",))
+            .filter(pk=product_id, is_active=True, category__is_active=True, restaurant__is_active=True)
+            .first()
+        )
+        if not product or not product.restaurant_id or (product.stock < 1 and action != "decrement"):
+            error = "Это блюдо сейчас нельзя добавить в корзину."
+        current = list(cart.items.select_for_update(of=("self",)).order_by("pk"))
+        existing = next(
+            (item for item in current if product and item.product_id == product.pk), None
+        )
+        current_restaurants = set(
+            Product.objects.filter(pk__in=[item.product_id for item in current])
+            .values_list("restaurant_id", flat=True)
+        )
+        if not error and current_restaurants and current_restaurants != {product.restaurant_id}:
             cart.items.all().delete()
             current = []
             existing = None
         current_quantity = existing.quantity if existing else 0
-        if action == "decrement":
+        if error:
+            pass
+        elif action == "decrement":
             if existing and current_quantity > 1:
                 existing.quantity -= 1
                 existing.save(update_fields=["quantity"])
@@ -130,32 +142,48 @@ def add_to_cart(request, product_id):
 @_cart_login_required
 @require_POST
 def update_cart_item(request, item_id):
-    cart = get_object_or_404(Cart, user=request.user)
-    item = get_object_or_404(CartItem.objects.select_related("product"), cart=cart, pk=item_id)
     action = request.POST.get("action")
-    if action == "increment":
-        quantity = item.quantity + 1
-    elif action == "decrement":
-        quantity = item.quantity - 1
-    else:
-        try:
-            quantity = int(request.POST.get("quantity", "0"))
-        except (TypeError, ValueError):
-            quantity = 0
+    cart_id = get_object_or_404(Cart, user=request.user).pk
     error = None
-    if quantity == 0:
-        item.delete()
-        if not _is_ajax(request):
-            messages.success(request, "Блюдо удалено из корзины.")
-    elif quantity < 0:
-        error = "Количество должно быть положительным числом."
-    elif action != "decrement" and (not item.product.is_active or quantity > item.product.stock):
-        error = f"Доступно только {item.product.stock} шт. блюда «{item.product.name}»."
-    else:
-        item.quantity = quantity
-        item.save(update_fields=["quantity"])
-        if not _is_ajax(request):
-            messages.success(request, "Корзина обновлена.")
+    removed = False
+    with transaction.atomic():
+        cart = Cart.objects.select_for_update().get(pk=cart_id, user=request.user)
+        item_ref = get_object_or_404(CartItem, cart=cart, pk=item_id)
+        product = Product.objects.select_for_update(of=("self",)).get(pk=item_ref.product_id)
+        item = get_object_or_404(
+            CartItem.objects.select_for_update(of=("self",)), cart=cart, pk=item_id
+        )
+        if action == "increment":
+            quantity = item.quantity + 1
+        elif action == "decrement":
+            quantity = item.quantity - 1
+        else:
+            quantity_raw = request.POST.get("quantity")
+            try:
+                quantity = int(quantity_raw) if quantity_raw is not None else None
+            except (TypeError, ValueError):
+                quantity = None
+        if quantity is None:
+            error = "Укажите корректное количество блюда."
+        elif quantity == 0:
+            item.delete()
+            removed = True
+        elif quantity < 0:
+            error = "Количество должно быть положительным числом."
+        elif action != "decrement" and (
+            not product.is_active
+            or not product.category.is_active
+            or (product.restaurant_id and not product.restaurant.is_active)
+            or quantity > product.stock
+        ):
+            error = f"Доступно только {product.stock} шт. блюда «{product.name}»."
+        else:
+            item.quantity = quantity
+            item.save(update_fields=["quantity"])
+    if removed and not _is_ajax(request):
+        messages.success(request, "Блюдо удалено из корзины.")
+    elif not error and not _is_ajax(request):
+        messages.success(request, "Корзина обновлена.")
     if _is_ajax(request):
         if error:
             return JsonResponse({"error": error}, status=400)
@@ -175,6 +203,9 @@ def update_cart_item(request, item_id):
 @login_required
 @require_POST
 def clear_cart(request):
-    Cart.objects.filter(user=request.user).delete()
+    with transaction.atomic():
+        cart = Cart.objects.select_for_update().filter(user=request.user).first()
+        if cart:
+            cart.items.all().delete()
     messages.success(request, "Корзина очищена.")
     return redirect("cart:detail")

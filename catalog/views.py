@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from django.core.paginator import Paginator
 from django.db.models import Count, IntegerField, Q, Sum, Value
 from django.db.models.functions import Coalesce
@@ -70,19 +72,59 @@ def restaurant_detail(request, slug):
                 cart.items.all().delete()
 
     products = restaurant.products.filter(
-        is_active=True, stock__gt=0
+        is_active=True, category__is_active=True
     ).select_related("category").order_by("category__name", "name")
     query = request.GET.get("q", "").strip()
     category_id = request.GET.get("category", "").strip()
+    availability = request.GET.get("availability", "available").strip()
+    sort = request.GET.get("sort", "category").strip()
+    min_price_raw = request.GET.get("min_price", "").strip()
+    max_price_raw = request.GET.get("max_price", "").strip()
+    filter_errors = []
+    min_price = max_price = None
+    for field_name, raw_value in (("Минимальная цена", min_price_raw), ("Максимальная цена", max_price_raw)):
+        if raw_value:
+            try:
+                value = Decimal(raw_value)
+                if not value.is_finite() or value < 0:
+                    raise InvalidOperation
+                if field_name == "Минимальная цена":
+                    min_price = value
+                else:
+                    max_price = value
+            except (InvalidOperation, ValueError):
+                filter_errors.append(f"{field_name}: укажите неотрицательное число.")
     if query:
         products = products.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
         )
     if category_id.isdigit():
         products = products.filter(category_id=int(category_id))
+    if availability == "available":
+        products = products.filter(stock__gt=0)
+    elif availability == "unavailable":
+        products = products.filter(stock=0)
+    else:
+        availability = "all"
+    if min_price is not None:
+        products = products.filter(price__gte=min_price)
+    if max_price is not None:
+        products = products.filter(price__lte=max_price)
+    if min_price is not None and max_price is not None and min_price > max_price:
+        filter_errors.append("Минимальная цена не должна превышать максимальную.")
+        products = products.none()
+    if sort == "name":
+        products = products.order_by("name")
+    elif sort == "price_asc":
+        products = products.order_by("price", "name")
+    elif sort == "price_desc":
+        products = products.order_by("-price", "name")
+    else:
+        sort = "category"
+        products = products.order_by("category__name", "name")
     categories = Category.objects.filter(
         is_active=True, products__restaurant=restaurant,
-        products__is_active=True, products__stock__gt=0
+        products__is_active=True
     ).distinct().order_by("name")
     cart_items = []
     cart_quantities = {}
@@ -102,15 +144,26 @@ def restaurant_detail(request, slug):
                     threshold = cart_restaurant.free_delivery_threshold
                     if threshold is None or cart_total < threshold:
                         delivery_fee = cart_restaurant.delivery_fee
-    products = list(products)
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
+    query_string = query_params.urlencode()
+    page_obj = Paginator(products, 24).get_page(request.GET.get("page"))
+    products = list(page_obj.object_list)
     for product in products:
         product.cart_quantity = cart_quantities.get(product.pk, 0)
     return render(request, "restaurant_detail.html", {
         "restaurant": restaurant,
         "products": products,
+        "page_obj": page_obj,
+        "query_string": query_string,
         "categories": categories,
         "search_query": query,
         "selected_category": category_id,
+        "availability": availability,
+        "sort": sort,
+        "min_price": min_price_raw,
+        "max_price": max_price_raw,
+        "filter_errors": filter_errors,
         "cart_items": cart_items,
         "cart_total": cart_total,
         "cart_delivery_fee": delivery_fee,
@@ -122,6 +175,6 @@ def restaurant_detail(request, slug):
 def product_detail(request, pk):
     product = get_object_or_404(
         Product.objects.select_related("category", "restaurant"),
-        pk=pk, is_active=True, category__is_active=True,
+        pk=pk, is_active=True, category__is_active=True, restaurant__is_active=True,
     )
     return render(request, "product_detail.html", {"product": product})

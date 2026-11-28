@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.text import slugify
+from .validators import validate_product_image
 
 
 class Restaurant(models.Model):
@@ -76,7 +77,10 @@ class Product(models.Model):
         "Цена", max_digits=10, decimal_places=2,
         validators=[MinValueValidator(0)]
     )
-    image = models.ImageField("Изображение", upload_to="products/", blank=True)
+    image = models.ImageField(
+        "Изображение", upload_to="products/", blank=True,
+        validators=[validate_product_image],
+    )
     image_url = models.URLField("Ссылка на фотографию", blank=True)
     stock = models.PositiveIntegerField("Остаток", default=0)
     is_active = models.BooleanField("Активен", default=True)

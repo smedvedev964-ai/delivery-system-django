@@ -604,6 +604,92 @@ a.address-pill {
     gap: 24px 16px;
 }
 
+.menu-filter-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 10px;
+    margin: 14px 0 24px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+.menu-filter-panel label {
+    display: grid;
+    gap: 5px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.menu-filter-panel input,
+.menu-filter-panel select {
+    min-width: 125px;
+    min-height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text);
+    padding: 7px 10px;
+}
+
+.catalog-pagination {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 24px 0;
+    color: var(--muted);
+}
+
+.catalog-pagination div {
+    display: flex;
+    gap: 12px;
+}
+
+.stock-unavailable {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    border-radius: 999px;
+    background: #fff;
+    color: #30302b;
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+.account-page > h1,
+.account-page .eyebrow + h1 {
+    margin-bottom: 18px;
+}
+
+.order-card,
+.account-page .card {
+    border-radius: 16px;
+}
+
+.account-page .card-body {
+    padding: 20px;
+}
+
+@media (max-width: 600px) {
+    .menu-filter-panel {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .menu-filter-panel label,
+    .menu-filter-panel input,
+    .menu-filter-panel select {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .menu-filter-panel button {
+        grid-column: 1 / -1;
+    }
+}
+
 .dish-card {
     min-width: 0;
 }

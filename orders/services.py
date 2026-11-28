@@ -5,6 +5,7 @@ from django.db import transaction
 from django.db.models import F
 
 from cart.models import Cart
+from catalog.models import Product
 from notifications.models import Notification
 from .models import Order, OrderItem, OrderStatusHistory
 
@@ -21,11 +22,9 @@ TRANSITIONS = {
     },
     Order.Status.PREPARING: {
         Order.Status.COURIER_ASSIGNED,
-        Order.Status.CANCELLED,
     },
     Order.Status.COURIER_ASSIGNED: {
         Order.Status.HANDED_TO_COURIER,
-        Order.Status.PREPARING,
     },
     Order.Status.HANDED_TO_COURIER: {
         Order.Status.IN_TRANSIT,
@@ -66,12 +65,21 @@ def calculate_delivery_fee(*, restaurant, subtotal):
     return restaurant.delivery_fee
 
 
+def _existing_idempotent_order(*, user, idempotency_key):
+    if not idempotency_key:
+        return None
+    existing_order = Order.objects.filter(idempotency_key=idempotency_key).first()
+    if existing_order and existing_order.customer_id != user.pk:
+        raise PermissionDenied("Ключ запроса уже использован другим аккаунтом.")
+    return existing_order
+
+
 @transaction.atomic
 def create_order(*, user, address, comment="", idempotency_key=None):
     if idempotency_key:
-        existing_order = Order.objects.filter(
-            idempotency_key=idempotency_key
-        ).first()
+        if len(idempotency_key) > 64:
+            raise ValidationError("Ключ оформления заказа слишком длинный.")
+        existing_order = _existing_idempotent_order(user=user, idempotency_key=idempotency_key)
         if existing_order:
             return existing_order, False
 
@@ -82,11 +90,27 @@ def create_order(*, user, address, comment="", idempotency_key=None):
     if cart is None:
         raise ValidationError("Корзина пуста.")
 
+    # A duplicate submission may have waited for this cart lock while the first
+    # request finished. Recheck the key after acquiring the lock before reading items.
+    existing_order = _existing_idempotent_order(user=user, idempotency_key=idempotency_key)
+    if existing_order:
+        return existing_order, False
+
+    product_ids = list(
+        cart.items.order_by("product_id").values_list("product_id", flat=True).distinct()
+    )
+    if not product_ids:
+        raise ValidationError("Нельзя оформить пустую корзину.")
+
+    # Lock product rows separately. Locking the joined nullable restaurant relation
+    # makes PostgreSQL reject FOR UPDATE on the outer-joined table.
+    list(
+        Product.objects.select_for_update(of=("self",))
+        .filter(pk__in=product_ids)
+        .order_by("pk")
+    )
     items = list(
-        cart.items.select_related(
-            "product",
-            "product__restaurant",
-        ).select_for_update()
+        cart.items.select_related("product", "product__restaurant", "product__category").order_by("pk")
     )
     if not items:
         raise ValidationError("Нельзя оформить пустую корзину.")
@@ -98,12 +122,14 @@ def create_order(*, user, address, comment="", idempotency_key=None):
         )
 
     restaurant = items[0].product.restaurant
+    if not restaurant.is_active:
+        raise ValidationError("Этот ресторан временно не принимает заказы.")
     items_total = Decimal("0.00")
 
     for item in items:
         product = item.product
 
-        if not product.is_active:
+        if not product.is_active or not product.category.is_active:
             raise ValidationError(
                 f"Блюдо «{product.name}» больше недоступно."
             )
@@ -177,7 +203,10 @@ def change_order_status(*, order, actor, new_status, comment=""):
     if new_status not in TRANSITIONS.get(order.status, set()):
         raise ValidationError("Недопустимый переход статуса заказа.")
 
-    role = getattr(actor, "role", "")
+    role = "admin" if actor.is_superuser else getattr(actor, "role", "")
+
+    if new_status == Order.Status.COURIER_ASSIGNED:
+        raise ValidationError("Назначайте курьера через действие назначения доставки.")
 
     if role == "client":
         can_cancel = (
@@ -195,6 +224,7 @@ def change_order_status(*, order, actor, new_status, comment=""):
 
     elif role == "courier":
         courier_statuses = {
+            Order.Status.HANDED_TO_COURIER,
             Order.Status.IN_TRANSIT,
             Order.Status.DELIVERED,
             Order.Status.FAILED,
@@ -217,6 +247,23 @@ def change_order_status(*, order, actor, new_status, comment=""):
     old_status = order.status
     order.status = new_status
     order.save(update_fields=["status", "updated_at"])
+
+    if new_status == Order.Status.CANCELLED and old_status in {
+        Order.Status.PENDING,
+        Order.Status.CONFIRMED,
+    }:
+        for item in order.items.select_related("product"):
+            Product.objects.filter(pk=item.product_id).update(
+                stock=F("stock") + item.quantity
+            )
+
+    if new_status in {Order.Status.DELIVERED, Order.Status.RETURNED}:
+        from django.utils import timezone
+
+        order.deliveries.filter(is_current=True).update(
+            is_current=False,
+            completed_at=timezone.now() if new_status == Order.Status.DELIVERED else None,
+        )
 
     OrderStatusHistory.objects.create(
         order=order,

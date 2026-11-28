@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Заказ {{ order.number }} — Везём{% endblock %}
+{% block content %}
+<section class="container py-5 account-page">
+  <a class="back-link" href="{% url 'orders:history' %}">← Все заказы</a>
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mt-3 mb-4">
+    <div><span class="eyebrow">Заказ № {{ order.number }}</span><h1>{{ order.get_status_display }}</h1><p class="text-muted">{{ order.created_at|date:"d.m.Y в H:i" }}</p></div>
+    {% if can_cancel %}<form method="post">{% csrf_token %}<input type="hidden" name="action" value="cancel"><button class="btn btn-outline-danger" type="submit">Отменить заказ</button></form>{% endif %}
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <section class="card border-0 shadow-sm mb-4"><div class="card-body"><h2 class="h4">Состав заказа</h2>
+        {% for item in order.items.all %}<div class="d-flex justify-content-between border-bottom py-2"><span>{{ item.product_name }} × {{ item.quantity }}</span><strong>{{ item.line_total }} ₽</strong></div>{% endfor %}
+        <div class="d-flex justify-content-between pt-3"><span>Блюда</span><span>{{ order.items_total }} ₽</span></div><div class="d-flex justify-content-between"><span>Доставка</span><span>{{ order.delivery_fee }} ₽</span></div><div class="d-flex justify-content-between fs-5 pt-2"><strong>Итого</strong><strong>{{ order.total }} ₽</strong></div>
+      </div></section>
+      <section class="card border-0 shadow-sm"><div class="card-body"><h2 class="h4">Доставка</h2><p class="mb-1">{{ order.address_snapshot.city }}, {{ order.address_snapshot.street }}, д. {{ order.address_snapshot.house }}{% if order.address_snapshot.apartment %}, кв. {{ order.address_snapshot.apartment }}{% endif %}</p>{% if order.address_snapshot.comment %}<p class="text-muted">{{ order.address_snapshot.comment }}</p>{% endif %}{% if order.comment %}<p><strong>Комментарий к заказу:</strong> {{ order.comment }}</p>{% endif %}</div></section>
+    </div>
+    <div class="col-lg-5">
+      <section class="card border-0 shadow-sm mb-4"><div class="card-body"><h2 class="h4">История заказа</h2><ol class="order-timeline list-unstyled mb-0">{% for event in order.status_history.all %}<li class="py-2 border-bottom"><strong>{{ event.get_new_status_display }}</strong><div class="small text-muted">{{ event.created_at|date:"d.m.Y H:i" }} · {{ event.actor.get_full_name|default:event.actor.username }}</div>{% if event.comment %}<div>{{ event.comment }}</div>{% endif %}</li>{% empty %}<li>История пока пуста.</li>{% endfor %}</ol></div></section>
+      {% if order.status == "delivered" %}<section class="card border-0 shadow-sm"><div class="card-body"><h2 class="h4">Отзыв</h2>{% if review %}<p class="mb-1">Оценка: <strong>{{ review.rating }} из 5</strong></p><p class="mb-0">{{ review.text|default:"Спасибо за оценку!" }}</p>{% else %}<form method="post">{% csrf_token %}<input type="hidden" name="action" value="review">{% for field in review_form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}</div>{% endfor %}<button class="btn btn-dark" type="submit">Отправить отзыв</button></form>{% endif %}</div></section>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

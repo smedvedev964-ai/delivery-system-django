@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Панель заказов — Везём{% endblock %}
+{% block content %}
+<section class="container py-5 account-page">
+  <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4"><div><span class="eyebrow">Рабочая панель</span><h1 class="mb-0">Управление заказами</h1></div><a class="btn btn-outline-dark" href="{% url 'analytics:dashboard' %}">Отчёты</a></div>
+  <form class="row g-2 align-items-end mb-4" method="get"><div class="col-sm-5"><label class="form-label" for="status-filter">Статус</label><select class="form-select" id="status-filter" name="status"><option value="">Все заказы</option>{% for value,label in status_choices %}<option value="{{ value }}"{% if selected_status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><div class="col-auto"><button class="btn btn-dark">Применить</button></div></form>
+  {% for order in orders %}
+  <article class="card border-0 shadow-sm mb-3"><div class="card-body">
+    <div class="d-flex flex-wrap justify-content-between gap-3"><div><span class="text-muted">{{ order.created_at|date:"d.m.Y H:i" }} · {{ order.number }}</span><h2 class="h5 mt-2">{{ order.customer.get_full_name|default:order.customer.username }} · {{ order.total }} ₽</h2><span class="badge text-bg-light">{{ order.get_status_display }}</span><p class="mt-2 mb-0">{{ order.address_snapshot.city }}, {{ order.address_snapshot.street }}, д. {{ order.address_snapshot.house }}{% if order.address_snapshot.apartment %}, кв. {{ order.address_snapshot.apartment }}{% endif %}</p><p class="small text-muted mb-0">Телефон: {{ order.customer.phone|default:"не указан" }}</p>{% if order.comment %}<p class="small text-muted mb-0">Комментарий: {{ order.comment }}</p>{% endif %}{% for delivery in order.deliveries.all %}{% if delivery.is_current %}<p class="small mb-0">Курьер: {{ delivery.courier.get_full_name|default:delivery.courier.username }}</p>{% endif %}{% endfor %}</div></div>
+    <p class="my-3">{% for item in order.items.all %}{{ item.product_name }} × {{ item.quantity }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    <div class="row g-3">
+      {% if order.allowed_statuses %}<div class="col-md-6"><form method="post" class="d-flex gap-2">{% csrf_token %}<input type="hidden" name="action" value="status"><input type="hidden" name="order_id" value="{{ order.pk }}"><select class="form-select" name="status" aria-label="Новый статус заказа">{% for value,label in order.allowed_statuses %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select><button class="btn btn-dark text-nowrap">Обновить статус</button></form></div>{% endif %}
+      {% if order.can_assign_courier %}<div class="col-md-6"><form method="post" class="d-flex gap-2">{% csrf_token %}<input type="hidden" name="action" value="assign"><input type="hidden" name="order_id" value="{{ order.pk }}"><select class="form-select" name="courier_id" required aria-label="Выбрать курьера"><option value="">Выберите курьера</option>{% for profile in couriers %}<option value="{{ profile.user_id }}">{{ profile.user.get_full_name|default:profile.user.username }} · активных доставок не более {{ profile.max_active_deliveries }}</option>{% endfor %}</select><button class="btn btn-outline-dark text-nowrap">Назначить</button></form>{% endif %}</div>
+    </div>
+  </div></article>
+  {% empty %}<div class="empty-restaurants card border-0 p-5 text-center"><h2>Заказов нет</h2><p>Для выбранного фильтра очередь пуста.</p></div>{% endfor %}
+</section>
+{% endblock %}

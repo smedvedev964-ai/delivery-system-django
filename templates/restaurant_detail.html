@@ -31,31 +31,31 @@
     </nav>
     <form class="menu-search" method="get">
       {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
-      <span>⌕</span><input type="search" name="q" value="{{ search_query }}" placeholder="Искать в меню {{ restaurant.name }}">
+      {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}{% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}{% if availability %}<input type="hidden" name="availability" value="{{ availability }}">{% endif %}{% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+      <span>⌕</span><input type="search" name="q" value="{{ search_query }}" placeholder="Искать в меню {{ restaurant.name }}" aria-label="Поиск по меню"><button class="btn btn-dark" type="submit">Найти</button>
     </form>
+    <form class="menu-filter-panel" method="get">
+      {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}{% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+      <label>Цена от<input type="number" name="min_price" min="0" step="1" value="{{ min_price }}" placeholder="₽"></label>
+      <label>Цена до<input type="number" name="max_price" min="0" step="1" value="{{ max_price }}" placeholder="₽"></label>
+      <label>Наличие<select name="availability"><option value="available"{% if availability == "available" %} selected{% endif %}>В наличии</option><option value="unavailable"{% if availability == "unavailable" %} selected{% endif %}>Нет в наличии</option><option value="all"{% if availability == "all" %} selected{% endif %}>Все</option></select></label>
+      <label>Сортировка<select name="sort"><option value="category"{% if sort == "category" %} selected{% endif %}>По категориям</option><option value="name"{% if sort == "name" %} selected{% endif %}>По названию</option><option value="price_asc"{% if sort == "price_asc" %} selected{% endif %}>Сначала дешевле</option><option value="price_desc"{% if sort == "price_desc" %} selected{% endif %}>Сначала дороже</option></select></label>
+      <button class="btn btn-outline-dark" type="submit">Фильтровать</button>
+    </form>
+    {% for error in filter_errors %}<p class="text-danger small mb-2">{{ error }}</p>{% endfor %}
     <div id="menu" class="menu-category-sections">
-      {% regroup products by category.name as product_groups %}
-      {% for group in product_groups %}
-      <section class="menu-category-section" aria-labelledby="category-{{ forloop.counter }}">
-        <h2 id="category-{{ forloop.counter }}">{{ group.grouper }}</h2>
-        <div class="menu-products">
-      {% for product in group.list %}
-      <article class="dish-card">
-        <div class="dish-photo">
-          {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-          {% elif product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
-          {% else %}<div class="dish-placeholder">🍽</div>{% endif %}
-          {% if user.is_authenticated %}{% include "cart_product_control.html" with product=product quantity=product.cart_quantity %}{% else %}<a class="add-dish" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" aria-label="Войдите, чтобы добавить {{ product.name }}" title="Войдите, чтобы добавить в корзину">+</a>{% endif %}
-        </div>
-        <div class="dish-info"><span class="dish-category">{{ product.category.name }}</span><h3>{{ product.name }}</h3><p>{{ product.description|default:"Вкусное блюдо из меню ресторана." }}</p><strong>{{ product.price }} ₽</strong></div>
-      </article>
-      {% endfor %}
-        </div>
-      </section>
-      {% empty %}
+      {% if products %}
+        {% if sort == "category" %}
+          {% regroup products by category.name as product_groups %}
+          {% for group in product_groups %}<section class="menu-category-section"><h2>{{ group.grouper }}</h2><div class="menu-products">{% for product in group.list %}{% include "catalog/product_card.html" %}{% endfor %}</div></section>{% endfor %}
+        {% else %}
+          <section class="menu-category-section"><h2>Блюда по выбранной сортировке</h2><div class="menu-products">{% for product in products %}{% include "catalog/product_card.html" %}{% endfor %}</div></section>
+        {% endif %}
+      {% else %}
       <div class="empty-restaurants"><h2>Блюда не найдены</h2><p>Попробуйте изменить поиск или категорию.</p><a href="{% url 'restaurant_detail' restaurant.slug %}">Показать всё меню</a></div>
-      {% endfor %}
+      {% endif %}
     </div>
+    {% if page_obj.paginator.num_pages > 1 %}<nav class="catalog-pagination" aria-label="Страницы меню"><span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span><div>{% if page_obj.has_previous %}<a href="?{{ query_string }}{% if query_string %}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>{% endif %}{% if page_obj.has_next %}<a href="?{{ query_string }}{% if query_string %}&amp;{% endif %}page={{ page_obj.next_page_number }}">Дальше</a>{% endif %}</div></nav>{% endif %}
   </div>
   {% include "cart_sidebar.html" %}
 </section>

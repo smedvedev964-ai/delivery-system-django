@@ -11,6 +11,9 @@ urlpatterns = [
     path("product/<int:pk>/", views.product_detail, name="product_detail"),
     path("cart/", include("cart.urls")),
     path("orders/", include("orders.urls")),
+    path("delivery/", include("delivery.urls")),
+    path("notifications/", include("notifications.urls")),
+    path("analytics/", include("analytics.urls")),
     path("accounts/", include("accounts.urls")),
 ]
 if settings.DEBUG:

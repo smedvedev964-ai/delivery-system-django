@@ -1,12 +1,20 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-this-key")
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+if not DEBUG and SECRET_KEY == "dev-only-change-this-key":
+    raise ImproperlyConfigured("Set a unique SECRET_KEY before disabling DEBUG.")
 ALLOWED_HOSTS = [x for x in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if x]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 INSTALLED_APPS = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
     "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles",
@@ -18,6 +26,15 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware", "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 ROOT_URLCONF = "config.urls"
 TEMPLATES = [{"BACKEND":"django.template.backends.django.DjangoTemplates", "DIRS":[BASE_DIR/"templates"], "APP_DIRS":True,
               "OPTIONS":{"context_processors":["django.template.context_processors.request", "django.contrib.auth.context_processors.auth", "django.contrib.messages.context_processors.messages", "cart.context_processors.cart_indicator", "accounts.context_processors.saved_delivery_address"]}}]
@@ -37,7 +54,7 @@ AUTH_PASSWORD_VALIDATORS = [
  {"NAME":"django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 LANGUAGE_CODE = "ru-ru"
-TIME_ZONE = "Europe/Warsaw"
+TIME_ZONE = "Europe/Moscow"
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"

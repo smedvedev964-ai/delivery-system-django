@@ -1,5 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Заказ оформлен — Везём{% endblock %}
 {% block content %}
-<section class="container py-5 text-center"><div class="fs-1">✓</div><h1>Заказ оформлен</h1><p>Номер заказа: <strong>{{ order.number }}</strong></p><p>Сумма: <strong>{{ order.total }} ₽</strong></p><p>Текущий статус: {{ order.get_status_display }}</p><a class="btn btn-dark" href="{% url 'home' %}">Вернуться к ресторанам</a></section>
+<section class="container py-5 text-center"><div class="fs-1">✓</div><h1>Заказ оформлен</h1><p>Номер заказа: <strong>{{ order.number }}</strong></p><p>Сумма: <strong>{{ order.total }} ₽</strong></p><p>Текущий статус: {{ order.get_status_display }}</p><a class="btn btn-dark" href="{% url 'orders:detail' order.pk %}">Посмотреть заказ</a> <a class="btn btn-outline-dark" href="{% url 'home' %}">Вернуться к ресторанам</a></section>
 {% endblock %}

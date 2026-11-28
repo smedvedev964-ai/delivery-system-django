@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Мои доставки — Везём{% endblock %}
+{% block content %}
+<section class="container py-5 account-page">
+  <span class="eyebrow">Кабинет курьера</span><h1 class="mb-4">Мои доставки</h1>
+  <h2 class="h4 mb-3">Активные</h2>
+  {% for delivery in active_deliveries %}
+  <article class="card border-0 shadow-sm mb-3"><div class="card-body"><div class="d-flex flex-wrap justify-content-between gap-3"><div><span class="text-muted">Заказ {{ delivery.order.number }}</span><h3 class="h5 mt-2">{{ delivery.order.get_status_display }}</h3><p>{{ delivery.order.address_snapshot.city }}, {{ delivery.order.address_snapshot.street }}, д. {{ delivery.order.address_snapshot.house }}{% if delivery.order.address_snapshot.apartment %}, кв. {{ delivery.order.address_snapshot.apartment }}{% endif %}</p><p class="mb-1">Клиент: {{ delivery.order.customer.get_full_name|default:delivery.order.customer.username }} · {{ delivery.order.customer.phone }}</p>{% if delivery.order.comment %}<p>Комментарий: {{ delivery.order.comment }}</p>{% endif %}<ul>{% for item in delivery.order.items.all %}<li>{{ item.product_name }} × {{ item.quantity }}</li>{% endfor %}</ul></div><strong>{{ delivery.order.total }} ₽</strong></div>
+    {% if delivery.allowed_statuses %}<form method="post" class="row g-2 align-items-end">{% csrf_token %}<input type="hidden" name="order_id" value="{{ delivery.order_id }}"><div class="col-md-6"><label class="form-label" for="status-{{ delivery.order_id }}">Следующее действие</label><select class="form-select" id="status-{{ delivery.order_id }}" name="status">{% for value,label in delivery.allowed_statuses %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></div><div class="col-md-4"><label class="form-label" for="comment-{{ delivery.order_id }}">Комментарий</label><input class="form-control" id="comment-{{ delivery.order_id }}" name="comment" maxlength="500"></div><div class="col-md-2"><button class="btn btn-dark w-100">Обновить</button></div></form>{% endif %}
+  </div></article>
+  {% empty %}<div class="empty-restaurants card border-0 p-4 text-center"><p class="mb-0">Сейчас активных доставок нет.</p></div>{% endfor %}
+  <h2 class="h4 mt-5 mb-3">История доставок</h2>
+  {% for delivery in completed_deliveries %}<article class="card border-0 shadow-sm mb-2"><div class="card-body d-flex justify-content-between"><span>Заказ {{ delivery.order.number }} · {{ delivery.order.get_status_display }}</span><span>{{ delivery.completed_at|date:"d.m.Y H:i"|default:"" }}</span></div></article>{% empty %}<p class="text-muted">Завершённых доставок пока нет.</p>{% endfor %}
+</section>
+{% endblock %}

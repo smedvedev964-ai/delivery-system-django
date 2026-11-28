@@ -1,0 +1,12 @@
+<article class="dish-card">
+  <div class="dish-photo">
+    {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+    {% elif product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+    {% else %}<div class="dish-placeholder">🍽</div>{% endif %}
+    {% if product.stock > 0 %}
+      {% if user.is_authenticated %}{% include "cart_product_control.html" with product=product quantity=product.cart_quantity %}
+      {% else %}<a class="add-dish" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" aria-label="Войти и добавить {{ product.name }}" title="Войдите, чтобы добавить в корзину">+</a>{% endif %}
+    {% else %}<span class="stock-unavailable">Нет в наличии</span>{% endif %}
+  </div>
+  <div class="dish-info"><span class="dish-category">{{ product.category.name }}</span><h3>{{ product.name }}</h3><p>{{ product.description|default:"Блюдо из меню ресторана." }}</p><strong>{{ product.price }} ₽</strong></div>
+</article>
