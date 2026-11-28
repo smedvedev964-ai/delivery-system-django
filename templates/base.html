@@ -16,8 +16,10 @@
 <body>
 <header class="topbar">
   <div class="topbar-inner">
-    <a class="brand" href="{% url 'home' %}" aria-label="Везём — главная"><span class="brand-mark">в</span><span>везём<span class="brand-dot">.</span></span></a>
-    <a class="top-action active" href="{% url 'home' %}">Заказать</a>
+    <div class="brand" aria-label="Везём">
+      <span class="brand-mark">в</span>
+      <span>везём<span class="brand-dot">.</span></span>
+    </div>
     <form class="global-search" method="get" action="{% url 'home' %}">
       <span>⌕</span><input type="search" name="q" placeholder="Искать рестораны и кухню" value="{{ search_query|default:'' }}" aria-label="Поиск ресторанов">
     </form>
@@ -27,6 +29,13 @@
   </div>
 </header>
 <main>{% block content %}{% endblock %}</main>
-<footer class="site-footer"><div class="footer-inner"><a class="brand footer-brand" href="{% url 'home' %}"><span class="brand-mark">в</span><span>везём<span class="brand-dot">.</span></span></a><span>Доставка любимой еды</span><span>Учебный проект · 2026</span></div></footer>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="brand footer-brand"><span class="brand-mark">в</span><span>везём<span class="brand-dot">.</span></span></span>
+    <span>Доставка любимой еды</span>
+    <span>Учебный проект · 2026</span>
+  </div>
+</footer>
+<script src="{% static 'js/site.js' %}" defer></script>
 </body>
 </html>

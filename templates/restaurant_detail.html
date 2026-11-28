@@ -10,7 +10,19 @@
         <span class="eyebrow">{{ restaurant.cuisine }}</span>
         <h1>{{ restaurant.name }}</h1>
         <p>{{ restaurant.description }}</p>
-        <div class="hero-facts"><span>★ {{ restaurant.rating|floatformat:1 }}</span><span>◷ {{ restaurant.delivery_min }}–{{ restaurant.delivery_max }} мин</span><span>{% if restaurant.delivery_fee == 0 %}Бесплатная доставка{% else %}Доставка {{ restaurant.delivery_fee }} ₽{% endif %}</span></div>
+        <div class="hero-facts">
+          <span>★ {{ restaurant.rating|floatformat:1 }}</span>
+          <span>◷ {{ restaurant.delivery_min }}–{{ restaurant.delivery_max }} мин</span>
+          <span>
+            {% if restaurant.delivery_policy == "free" %}
+              Бесплатная доставка
+            {% elif restaurant.delivery_policy == "threshold" %}
+              {{ restaurant.delivery_fee|floatformat:0 }} ₽ · бесплатно от {{ restaurant.free_delivery_threshold|floatformat:0 }} ₽
+            {% else %}
+              Доставка {{ restaurant.delivery_fee|floatformat:0 }} ₽
+            {% endif %}
+          </span>
+        </div>
       </div>
     </header>
     <nav class="menu-categories">
@@ -37,6 +49,20 @@
       {% endfor %}
     </div>
   </div>
-  <aside class="cart-sidebar"><h2>Корзина</h2><div class="cart-empty-art">🥡</div><h3>Пока пусто</h3><p>Добавьте что-нибудь вкусное из меню</p><div class="cart-sidebar-bottom"><span>Доставка</span><strong>{% if restaurant.delivery_fee == 0 %}Бесплатно{% else %}{{ restaurant.delivery_fee }} ₽{% endif %}</strong></div></aside>
+  <aside class="cart-sidebar"><h2>Корзина</h2><div class="cart-empty-art">🥡</div><h3>Пока пусто</h3><p>Добавьте что-нибудь вкусное из меню</p><div class="cart-sidebar-bottom">
+    <span>Доставка</span>
+    <strong>
+      {% if restaurant.delivery_policy == "free" %}
+        Бесплатно
+      {% elif restaurant.delivery_policy == "threshold" %}
+        {{ restaurant.delivery_fee|floatformat:0 }} ₽
+      {% else %}
+        {{ restaurant.delivery_fee|floatformat:0 }} ₽
+      {% endif %}
+    </strong>
+  </div>
+  {% if restaurant.delivery_policy == "threshold" %}
+    <p class="delivery-hint">Бесплатно при заказе от {{ restaurant.free_delivery_threshold|floatformat:0 }} ₽</p>
+  {% endif %}</aside>
 </section>
 {% endblock %}

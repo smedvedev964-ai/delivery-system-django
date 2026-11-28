@@ -9,6 +9,7 @@ from catalog.models import Category, Product, Restaurant
 RESTAURANTS = [
     {
         "name": "Додо Пицца", "slug": "dodo-pizza", "cuisine": "Пицца",
+        "delivery_policy": "threshold", "delivery_fee": "149", "free_delivery_threshold": '999',
         "description": "Пицца, закуски и напитки. Демонстрационное меню учебного проекта.",
         "rating": "4.8", "rating_count": 2400, "delivery_min": 25, "delivery_max": 40,
         "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900",
@@ -20,6 +21,7 @@ RESTAURANTS = [
     },
     {
         "name": "Теремок", "slug": "teremok", "cuisine": "Русская кухня",
+        "delivery_policy": "fixed", "delivery_fee": "99", "free_delivery_threshold": None,
         "description": "Блины, супы и горячие блюда русской кухни.",
         "rating": "4.7", "rating_count": 1300, "delivery_min": 30, "delivery_max": 45,
         "image_url": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=900",
@@ -31,6 +33,7 @@ RESTAURANTS = [
     },
     {
         "name": "Шоколадница", "slug": "shokoladnitsa", "cuisine": "Кофейни и завтраки",
+        "delivery_policy": "fixed", "delivery_fee": "149", "free_delivery_threshold": None,
         "description": "Кофе, завтраки, десерты и блюда на каждый день.",
         "rating": "4.6", "rating_count": 980, "delivery_min": 20, "delivery_max": 35,
         "image_url": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900",
@@ -42,6 +45,7 @@ RESTAURANTS = [
     },
     {
         "name": "MYBOX", "slug": "mybox", "cuisine": "Суши и роллы",
+        "delivery_policy": "threshold", "delivery_fee": "199", "free_delivery_threshold": '1200',
         "description": "Роллы, суши и блюда азиатской кухни.",
         "rating": "4.7", "rating_count": 1600, "delivery_min": 45, "delivery_max": 60,
         "image_url": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=900",
@@ -53,6 +57,7 @@ RESTAURANTS = [
     },
     {
         "name": "Крошка Картошка", "slug": "kroshka-kartoshka", "cuisine": "Русская кухня",
+        "delivery_policy": "fixed", "delivery_fee": "129", "free_delivery_threshold": None,
         "description": "Запечённый картофель с разнообразными начинками.",
         "rating": "4.5", "rating_count": 760, "delivery_min": 25, "delivery_max": 40,
         "image_url": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=900",
@@ -64,6 +69,7 @@ RESTAURANTS = [
     },
     {
         "name": "Вкусно — и точка", "slug": "vkusno-i-tochka", "cuisine": "Бургеры",
+        "delivery_policy": "fixed", "delivery_fee": "149", "free_delivery_threshold": None,
         "description": "Бургеры, картофель и напитки. Демонстрационные позиции меню.",
         "rating": "4.6", "rating_count": 2100, "delivery_min": 20, "delivery_max": 35,
         "image_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=900",
@@ -75,6 +81,7 @@ RESTAURANTS = [
     },
     {
         "name": "Rostic's", "slug": "rostics", "cuisine": "Курица и бургеры",
+        "delivery_policy": "fixed", "delivery_fee": "149", "free_delivery_threshold": None,
         "description": "Блюда из курицы, сэндвичи и закуски.",
         "rating": "4.5", "rating_count": 1450, "delivery_min": 25, "delivery_max": 40,
         "image_url": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=900",
@@ -86,6 +93,7 @@ RESTAURANTS = [
     },
     {
         "name": "Суши Wok", "slug": "sushi-wok", "cuisine": "Азиатская кухня",
+        "delivery_policy": "threshold", "delivery_fee": "179", "free_delivery_threshold": '900',
         "description": "Суши, роллы, лапша и горячие азиатские блюда.",
         "rating": "4.4", "rating_count": 890, "delivery_min": 40, "delivery_max": 55,
         "image_url": "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=900",
@@ -105,7 +113,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         created_restaurants = created_dishes = 0
         for data in RESTAURANTS:
-            restaurant, created = Restaurant.objects.get_or_create(
+            restaurant, created = Restaurant.objects.update_or_create(
                 slug=data["slug"],
                 defaults={key: value for key, value in data.items() if key != "dishes"},
             )

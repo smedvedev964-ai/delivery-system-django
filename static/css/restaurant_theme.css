@@ -1,96 +1,1181 @@
-/* Тёмная тема агрегатора ресторанов «Везём» */
-:root{--bg:#191919;--panel:#292929;--panel-2:#222;--text:#f7f7f7;--muted:#aaa;--line:#393939;--accent:#f4d12f}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Manrope,Arial,sans-serif}
-.topbar{height:70px;background:#242424;border-bottom:1px solid #343434;position:sticky;top:0;z-index:20}
-.topbar-inner{height:100%;max-width:1600px;margin:auto;padding:0 28px;display:flex;align-items:center;gap:14px}
-.brand{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-size:21px;font-weight:800;white-space:nowrap}
-.brand-mark{width:37px;height:37px;border:2px solid #fff;border-radius:50%;display:grid;place-items:center;font-size:23px;line-height:1}
-.brand-dot{color:var(--accent)}
-.top-action{color:#bbb;text-decoration:none;font-size:13px;font-weight:700;padding:11px 18px;border-radius:25px}
-.top-action.active{background:#fff;color:#222}
-.global-search{height:46px;display:flex;align-items:center;gap:12px;background:#171717;border-radius:28px;padding:0 18px;flex:1;min-width:100px}
-.global-search span,.menu-search span{font-size:25px;color:#ddd}
-.global-search input,.menu-search input{border:0;outline:0;background:transparent;color:#fff;width:100%;font:600 13px Manrope}
-.global-search input::placeholder,.menu-search input::placeholder{color:#777}
-.address-pill,.top-time{border:0;background:#171717;color:#eee;border-radius:25px;padding:13px 15px;font:700 12px Manrope;white-space:nowrap}
-.top-icon{width:40px;height:40px;border-radius:50%;background:#d9f0e9;color:#222;text-decoration:none;display:grid;place-items:center;font-size:20px}
-.restaurants-page{max-width:1360px;margin:0 auto;padding:32px 28px 65px}
-.page-heading{display:flex;align-items:end;justify-content:space-between;margin-bottom:17px}
-.eyebrow{font-size:10px;font-weight:800;letter-spacing:1.5px;color:#b5b5b5}
-.page-heading h1,.restaurant-hero h1{font-size:29px;font-weight:800;letter-spacing:-1px;margin:4px 0 0}
-.result-count{font-size:12px;color:var(--muted)}
-.cuisine-bar{min-height:58px;background:var(--panel);border-radius:20px;padding:7px;display:flex;align-items:center;gap:5px;margin-bottom:34px;overflow-x:auto}
-.cuisine-chip{padding:12px 15px;color:#eee;text-decoration:none;border-radius:15px;font-size:12px;white-space:nowrap}
-.cuisine-chip:hover,.cuisine-chip.selected{background:#171717;color:#fff}
-.sort-form{margin-left:auto;padding:0 12px;display:flex;align-items:center;gap:7px;white-space:nowrap;color:#ddd;font-size:12px}
-.sort-form select{background:transparent;color:#fff;border:0;outline:0;font:600 12px Manrope;max-width:145px}
-.sort-form option{background:#222}
-.search-hint{color:#aaa;font-size:13px}
-.restaurant-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 22px}
-.restaurant-card{display:block;color:inherit;text-decoration:none;min-width:0}
-.restaurant-cover{height:145px;border-radius:20px;overflow:hidden;position:relative;background:#303030}
-.restaurant-cover img{width:100%;height:100%;object-fit:cover;transition:transform .25s}
-.restaurant-card:hover .restaurant-cover img{transform:scale(1.035)}
-.favorite-mark{position:absolute;right:13px;top:9px;font-size:27px;color:white;text-shadow:0 1px 5px #000}
-.cover-fallback{height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#333,#494949);font-size:28px;font-weight:800}
-.restaurant-meta{padding:8px 5px 0}
-.restaurant-name-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.restaurant-name-row h2{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
-.rating{font-size:11px;white-space:nowrap;color:#eee}
-.rating small{color:#aaa;font-size:10px}
-.restaurant-subline{display:flex;gap:6px;align-items:center;color:#bbb;font-size:11px;margin-top:3px}
-.restaurant-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
-.restaurant-tags span{background:#273c1f;color:#a6e34b;border-radius:10px;padding:4px 7px;font-size:9px;font-weight:800}
-.empty-restaurants{grid-column:1/-1;text-align:center;padding:65px 15px;color:#aaa}
-.empty-restaurants h2{color:#fff;font-size:19px}
-.empty-restaurants a{color:var(--accent);font-size:13px}
-.pagination-bar{display:flex;justify-content:center;align-items:center;gap:25px;padding:35px;color:#aaa;font-size:12px}
-.pagination-bar a,.back-link{color:var(--accent);text-decoration:none;font-weight:700}
-.menu-layout{max-width:1600px;margin:0 auto;padding:18px 28px 35px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;height:calc(100vh - 70px);min-height:650px}
-.menu-main{min-width:0;overflow-y:auto;padding:0 0 30px}
-.back-link{display:inline-block;margin:2px 0 15px;font-size:12px}
-.restaurant-hero{min-height:190px;background:var(--panel);border-radius:18px;display:flex;overflow:hidden;margin-bottom:17px}
-.restaurant-hero>img{width:30%;max-width:330px;object-fit:cover}
-.restaurant-hero-copy{padding:25px 28px;align-self:center}
-.restaurant-hero h1{font-size:27px;margin:5px 0}
-.restaurant-hero-copy p{font-size:12px;color:#bbb;max-width:650px;margin:7px 0}
-.hero-facts{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:#ddd;margin-top:12px}
-.menu-categories{display:flex;gap:22px;align-items:center;overflow-x:auto;white-space:nowrap;background:#242424;border:1px solid #383838;border-radius:16px;padding:15px 18px}
-.menu-categories a{color:#aaa;text-decoration:none;font-size:12px;font-weight:700}
-.menu-categories a.active,.menu-categories a:hover{color:#fff;border-bottom:2px solid #fff;padding-bottom:5px}
-.menu-search{height:43px;background:#242424;border-radius:13px;margin:15px 0;display:flex;align-items:center;gap:10px;padding:0 13px}
-.menu-search span{font-size:22px}
-.menu-products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 15px}
-.dish-card{min-width:0}
-.dish-photo{height:190px;background:#f4f4f4;border-radius:17px;overflow:hidden;position:relative}
-.dish-photo img{width:100%;height:100%;object-fit:cover}
-.dish-placeholder{height:100%;display:grid;place-items:center;color:#333;font-size:60px}
-.add-dish{position:absolute;right:10px;bottom:10px;width:39px;height:39px;border:0;border-radius:50%;background:#fff;color:#171717;font-size:27px;box-shadow:0 2px 10px #0002;cursor:not-allowed}
-.dish-info{padding:9px 5px}
-.dish-category{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:1px}
-.dish-info h2{font-size:14px;font-weight:800;margin:3px 0}
-.dish-info p{font-size:11px;color:#aaa;line-height:1.5;min-height:32px;margin:0 0 7px}
-.dish-info strong{font-size:14px}
-.cart-sidebar{background:#242424;border:1px solid #383838;border-radius:19px;position:relative;display:flex;flex-direction:column;align-items:center;padding:20px 17px;min-height:0}
-.cart-sidebar h2{align-self:flex-start;font-size:19px;font-weight:800}
-.cart-empty-art{font-size:76px;margin-top:auto;filter:grayscale(.25)}
-.cart-sidebar h3{font-size:17px;font-weight:800;margin:9px 0 3px}
-.cart-sidebar>p{font-size:11px;color:#aaa;text-align:center;max-width:190px}
-.cart-sidebar-bottom{width:100%;margin-top:auto;border-top:1px solid #414141;padding-top:13px;display:flex;justify-content:space-between;font-size:12px;color:#aaa}
-.cart-sidebar-bottom strong{color:#fff}
-.site-footer{background:#222;padding:20px 28px;color:#999}
-.footer-inner{max-width:1360px;margin:auto;display:flex;align-items:center;justify-content:space-between;font-size:11px}
-.footer-brand{font-size:17px}
-.footer-brand .brand-mark{width:29px;height:29px;font-size:18px}
-@media(max-width:1100px){.restaurant-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.menu-layout{grid-template-columns:minmax(0,1fr) 260px}.menu-products{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:760px){.topbar{height:auto}.topbar-inner{padding:10px 14px;flex-wrap:wrap;gap:8px}.brand{font-size:18px}.brand-mark{width:32px;height:32px}.top-action,.top-time{display:none}.global-search{order:3;flex-basis:100%;height:40px}.address-pill{margin-left:auto;padding:10px}.restaurants-page{padding:22px 15px 45px}.page-heading h1{font-size:25px}.cuisine-bar{margin-bottom:22px}.sort-form{padding:0 5px}.restaurant-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 12px}.restaurant-cover{height:125px;border-radius:15px}.restaurant-name-row{align-items:flex-start}.restaurant-name-row h2{font-size:12px}.rating{font-size:10px}.restaurant-subline{font-size:10px;flex-wrap:wrap}.menu-layout{height:auto;min-height:0;display:block;padding:14px}.restaurant-hero{min-height:150px}.restaurant-hero>img{width:35%}.restaurant-hero-copy{padding:15px}.restaurant-hero h1{font-size:21px}.hero-facts{gap:8px;font-size:10px}.menu-categories{gap:17px}.menu-products{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 10px}.dish-photo{height:145px}.dish-info h2{font-size:12px}.cart-sidebar{display:none}.footer-inner{gap:10px;flex-wrap:wrap}.footer-inner>span:nth-child(2){display:none}}
+/* ==========================================================================
+   Везём — тёмная тема агрегатора ресторанов
+   ========================================================================== */
 
-.product-detail-section{max-width:1100px;padding-top:35px;padding-bottom:60px}
-.product-detail{background:#242424;border:1px solid #393939;color:#fff}
-.product-detail-info h1{color:#fff}
-.product-detail-description,.product-detail-price small{color:#aaa}
-.product-detail-image{background:#303030}
-.product-detail-image img{object-fit:cover}
-.back-to-catalog{color:var(--accent)}
-@media(max-width:767px){.product-detail{background:#242424}.product-detail-image,.product-detail-image img{min-height:230px}}
+:root {
+    --bg: #191919;
+    --panel: #242424;
+    --panel-raised: #2b2b2b;
+    --panel-soft: #202020;
+    --text: #f5f5f5;
+    --muted: #a3a3a3;
+    --muted-strong: #c2c2c2;
+    --line: #393939;
+    --accent: #f4d12f;
+    --accent-hover: #ffdf4d;
+    --success-bg: #263522;
+    --success-text: #b7df83;
+    --danger: #f18b83;
+    --content-width: 1360px;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --shadow-card: 0 16px 38px rgb(0 0 0 / 22%);
+    --ease: 180ms ease;
+}
+
+html {
+    background: var(--bg);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Manrope", Arial, sans-serif;
+    line-height: 1.5;
+}
+
+main {
+    flex: 1 0 auto;
+    width: 100%;
+}
+
+a {
+    color: inherit;
+}
+
+a,
+button,
+input,
+select {
+    transition:
+        color var(--ease),
+        background-color var(--ease),
+        border-color var(--ease),
+        box-shadow var(--ease),
+        transform var(--ease),
+        opacity var(--ease);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1d1d1d;
+}
+
+::-webkit-scrollbar-thumb {
+    border: 2px solid #1d1d1d;
+    border-radius: 20px;
+    background: #505050;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6a6a6a;
+}
+
+/* Шапка */
+
+.topbar {
+    position: sticky;
+    z-index: 30;
+    top: 0;
+    height: 70px;
+    flex: 0 0 70px;
+    border-bottom: 1px solid #343434;
+    background: rgb(36 36 36 / 94%);
+    backdrop-filter: blur(16px);
+}
+
+.topbar-inner {
+    display: flex;
+    width: min(100% - 56px, 1600px);
+    height: 100%;
+    align-items: center;
+    gap: 18px;
+    margin: 0 auto;
+}
+
+.brand {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 9px;
+    color: var(--text);
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.brand-mark {
+    display: grid;
+    width: 37px;
+    height: 37px;
+    place-items: center;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.brand-dot {
+    color: var(--accent);
+}
+
+.global-search,
+.menu-search {
+    display: flex;
+    min-width: 0;
+    height: 46px;
+    align-items: center;
+    gap: 11px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: #191919;
+    padding: 0 17px;
+}
+
+.global-search {
+    flex: 1 1 360px;
+    max-width: 590px;
+    margin-left: auto;
+}
+
+.global-search:focus-within,
+.menu-search:focus-within {
+    border-color: #6b5d20;
+    box-shadow: 0 0 0 3px rgb(244 209 47 / 9%);
+}
+
+.global-search > span,
+.menu-search > span {
+    color: #c7c7c7;
+    font-size: 23px;
+    line-height: 1;
+}
+
+.global-search input,
+.menu-search input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.global-search input::placeholder,
+.menu-search input::placeholder {
+    color: #777;
+}
+
+.address-pill,
+.top-time {
+    flex: 0 0 auto;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: #191919;
+    color: #e8e8e8;
+    padding: 12px 15px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.address-pill:hover {
+    border-color: var(--line);
+    background: var(--panel-raised);
+}
+
+.top-icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #191919;
+    font-size: 19px;
+    text-decoration: none;
+}
+
+.top-icon:hover {
+    transform: translateY(-2px);
+    background: var(--accent-hover);
+    color: #191919;
+}
+
+/* Главная: рестораны */
+
+.restaurants-page {
+    width: min(100% - 56px, var(--content-width));
+    margin: 0 auto;
+    padding: 34px 0 68px;
+}
+
+.page-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 19px;
+}
+
+.eyebrow {
+    color: #b5b5b5;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.page-heading h1,
+.restaurant-hero h1 {
+    margin: 4px 0 0;
+    font-size: clamp(25px, 3vw, 30px);
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.result-count {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.cuisine-bar {
+    display: flex;
+    min-height: 58px;
+    align-items: center;
+    gap: 5px;
+    overflow-x: auto;
+    margin-bottom: 32px;
+    border: 1px solid #303030;
+    border-radius: 18px;
+    background: var(--panel);
+    padding: 7px;
+    scrollbar-width: thin;
+    scrollbar-color: #555 transparent;
+}
+
+.cuisine-chip {
+    flex: 0 0 auto;
+    border-radius: 13px;
+    color: #e8e8e8;
+    padding: 11px 15px;
+    font-size: 12px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.cuisine-chip:hover,
+.cuisine-chip.selected {
+    background: #171717;
+    color: var(--accent);
+}
+
+.sort-form {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding: 0 12px;
+    color: #d7d7d7;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.sort-form select {
+    max-width: 155px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.sort-form option {
+    background: #242424;
+    color: #fff;
+}
+
+.search-hint {
+    margin: -10px 0 18px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.restaurant-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 30px 22px;
+}
+
+.restaurant-card {
+    display: block;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.restaurant-cover {
+    position: relative;
+    height: 160px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: #303030;
+}
+
+.restaurant-cover::after {
+    position: absolute;
+    inset: 45% 0 0;
+    background: linear-gradient(transparent, rgb(0 0 0 / 20%));
+    content: "";
+    pointer-events: none;
+}
+
+.restaurant-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 350ms ease;
+}
+
+.restaurant-card:hover .restaurant-cover img {
+    transform: scale(1.045);
+}
+
+.cover-fallback {
+    display: grid;
+    height: 100%;
+    place-items: center;
+    background: linear-gradient(135deg, #303030, #494949);
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.favorite-mark {
+    position: absolute;
+    z-index: 1;
+    top: 8px;
+    right: 13px;
+    color: #fff;
+    font-size: 27px;
+    text-shadow: 0 1px 5px #000;
+}
+
+.restaurant-meta {
+    padding: 10px 4px 0;
+}
+
+.restaurant-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.restaurant-name-row h2 {
+    overflow: hidden;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rating {
+    flex: 0 0 auto;
+    color: #f5f5f5;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.rating small {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.restaurant-subline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    color: #b9b9b9;
+    font-size: 11px;
+}
+
+.restaurant-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.restaurant-tags span {
+    border-radius: 8px;
+    background: var(--success-bg);
+    color: var(--success-text);
+    padding: 5px 8px;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.empty-restaurants {
+    grid-column: 1 / -1;
+    padding: 65px 15px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.empty-restaurants h2 {
+    color: var(--text);
+    font-size: 19px;
+}
+
+.empty-restaurants a {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    padding: 35px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.pagination-bar a,
+.back-link {
+    color: var(--accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.pagination-bar a:hover,
+.back-link:hover {
+    color: var(--accent-hover);
+}
+
+/* Страница ресторана и меню */
+
+.menu-layout {
+    display: grid;
+    width: min(100% - 56px, 1600px);
+    grid-template-columns: minmax(0, 1fr) 310px;
+    align-items: start;
+    gap: 22px;
+    margin: 0 auto;
+    padding: 20px 0 54px;
+}
+
+.menu-main {
+    min-width: 0;
+    padding-bottom: 30px;
+}
+
+.back-link {
+    display: inline-block;
+    margin: 2px 0 16px;
+    font-size: 12px;
+}
+
+.restaurant-hero {
+    display: flex;
+    min-height: 190px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    border: 1px solid #333;
+    border-radius: var(--radius-lg);
+    background: var(--panel);
+}
+
+.restaurant-hero > img {
+    width: 30%;
+    max-width: 330px;
+    min-height: 190px;
+    object-fit: cover;
+}
+
+.restaurant-hero-copy {
+    align-self: center;
+    padding: 25px 28px;
+}
+
+.restaurant-hero h1 {
+    margin: 5px 0;
+    font-size: 27px;
+}
+
+.restaurant-hero-copy p {
+    max-width: 650px;
+    margin: 7px 0;
+    color: #bcbcbc;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.hero-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin-top: 13px;
+    color: #e1e1e1;
+    font-size: 11px;
+}
+
+.menu-categories {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    overflow-x: auto;
+    border: 1px solid #383838;
+    border-radius: 15px;
+    background: var(--panel);
+    padding: 15px 18px;
+    white-space: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: #555 transparent;
+}
+
+.menu-categories a {
+    flex: 0 0 auto;
+    border-bottom: 2px solid transparent;
+    color: #aaa;
+    padding-bottom: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.menu-categories a.active,
+.menu-categories a:hover {
+    border-bottom-color: var(--accent);
+    color: #fff;
+}
+
+.menu-search {
+    height: 44px;
+    margin: 15px 0 19px;
+    border-radius: 12px;
+    background: var(--panel);
+}
+
+.menu-products {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 16px;
+}
+
+.dish-card {
+    min-width: 0;
+}
+
+.dish-photo {
+    position: relative;
+    height: 190px;
+    overflow: hidden;
+    border: 1px solid #383838;
+    border-radius: 16px;
+    background: #292929;
+}
+
+.dish-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 350ms ease;
+}
+
+.dish-card:hover .dish-photo img {
+    transform: scale(1.035);
+}
+
+.dish-placeholder {
+    display: grid;
+    height: 100%;
+    place-items: center;
+    background: linear-gradient(135deg, #292929, #373737);
+    color: #b9b9b9;
+    font-size: 54px;
+}
+
+.add-dish {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    width: 39px;
+    height: 39px;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 25%);
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 28%);
+    color: #191919;
+    font-size: 25px;
+    line-height: 1;
+}
+
+.add-dish:hover {
+    transform: translateY(-2px) scale(1.05);
+    background: var(--accent-hover);
+}
+
+.add-dish:active {
+    transform: scale(.94);
+}
+
+.dish-info {
+    padding: 10px 4px;
+}
+
+.dish-category {
+    color: #aaa;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.dish-info h2 {
+    margin: 4px 0;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.dish-info p {
+    min-height: 33px;
+    margin: 0 0 8px;
+    color: #aaa;
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.dish-info strong {
+    font-size: 14px;
+}
+
+/* Корзина: остаётся в колонке, но не создаёт внутреннюю прокрутку меню */
+
+.cart-sidebar {
+    position: sticky;
+    top: 90px;
+    display: flex;
+    min-height: 340px;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #383838;
+    border-radius: var(--radius-lg);
+    background: var(--panel);
+    padding: 20px 17px;
+    scrollbar-width: thin;
+    scrollbar-color: #555 transparent;
+}
+
+.cart-sidebar h2 {
+    align-self: flex-start;
+    margin: 0;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.cart-empty-art {
+    margin-top: auto;
+    filter: grayscale(.25);
+    font-size: 68px;
+}
+
+.cart-sidebar h3 {
+    margin: 9px 0 3px;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.cart-sidebar > p {
+    max-width: 200px;
+    color: #aaa;
+    font-size: 11px;
+    text-align: center;
+}
+
+.cart-sidebar-bottom {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
+    border-top: 1px solid #414141;
+    padding-top: 13px;
+    color: #aaa;
+    font-size: 12px;
+}
+
+.cart-sidebar-bottom strong {
+    color: #fff;
+    text-align: right;
+}
+
+.delivery-hint {
+    width: 100%;
+    margin: 10px 0 0;
+    border-radius: 10px;
+    background: #30301f;
+    color: #e7d47c !important;
+    padding: 9px;
+    font-size: 10px !important;
+    line-height: 1.5;
+}
+
+/* Старые страницы каталога и карточки товара — тоже в единой теме */
+
+.catalog-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--panel);
+    padding: 16px;
+}
+
+.catalog-filters input,
+.catalog-filters select {
+    min-width: 130px;
+    flex: 1;
+    border: 1px solid #454545;
+    border-radius: 10px;
+    background: #191919;
+    color: var(--text);
+    padding: 11px 12px;
+    font-size: 12px;
+}
+
+.catalog-filters input[type="search"] {
+    flex: 2;
+}
+
+.catalog-filters button,
+.details-button {
+    border: 0;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #191919;
+    padding: 11px 16px;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.catalog-filters button:hover,
+.details-button:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.filter-reset {
+    color: var(--muted);
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.filter-error {
+    margin: 8px 0;
+    color: var(--danger);
+    font-size: 12px;
+}
+
+.product-card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.product-card-link:hover {
+    color: inherit;
+}
+
+.product-card-bottom {
+    padding: 0 16px 16px;
+}
+
+.details-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.catalog-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    margin: 32px 0 10px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.catalog-pagination a,
+.back-to-catalog {
+    color: var(--accent);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.product-detail-section {
+    width: min(100% - 40px, 1100px);
+    margin: 0 auto;
+    padding: 38px 0 65px;
+}
+
+.back-to-catalog {
+    display: inline-block;
+    margin-bottom: 22px;
+    font-size: 13px;
+}
+
+.product-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 38px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: var(--panel);
+    color: var(--text);
+    padding: 25px;
+}
+
+.product-detail-image {
+    min-height: 330px;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #303030;
+}
+
+.product-detail-image img {
+    width: 100%;
+    height: 100%;
+    min-height: 330px;
+    object-fit: cover;
+}
+
+.product-detail-info {
+    padding: 18px 10px;
+}
+
+.product-detail-info h1 {
+    margin: 10px 0 15px;
+    color: #fff;
+    font-size: clamp(27px, 4vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+}
+
+.product-detail-description {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.product-detail-price {
+    margin-top: 24px;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.product-detail-price small {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.stock-available,
+.stock-unavailable {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.stock-available {
+    color: var(--success-text);
+}
+
+.stock-unavailable {
+    color: var(--danger);
+}
+
+.detail-note {
+    margin-top: 25px;
+    border-radius: 10px;
+    background: #303030;
+    color: var(--muted);
+    padding: 12px;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* Подвал */
+
+.site-footer {
+    flex: 0 0 auto;
+    margin-top: auto;
+    border-top: 1px solid #343434;
+    background: #222;
+    color: #999;
+    padding: 21px 28px;
+}
+
+.footer-inner {
+    display: flex;
+    width: min(100%, var(--content-width));
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 auto;
+    font-size: 11px;
+}
+
+.footer-brand {
+    font-size: 17px;
+}
+
+.footer-brand .brand-mark {
+    width: 29px;
+    height: 29px;
+    font-size: 18px;
+}
+
+/* Адаптивность */
+
+@media (max-width: 1100px) {
+    .restaurant-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .menu-layout {
+        grid-template-columns: minmax(0, 1fr) 270px;
+    }
+
+    .menu-products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .topbar {
+        height: auto;
+        min-height: 62px;
+        flex-basis: auto;
+    }
+
+    .topbar-inner {
+        width: calc(100% - 28px);
+        flex-wrap: wrap;
+        gap: 9px;
+        padding: 10px 0;
+    }
+
+    .brand {
+        font-size: 18px;
+    }
+
+    .brand-mark {
+        width: 32px;
+        height: 32px;
+        font-size: 19px;
+    }
+
+    .top-time {
+        display: none;
+    }
+
+    .global-search {
+        order: 3;
+        height: 41px;
+        flex-basis: 100%;
+        max-width: none;
+    }
+
+    .address-pill {
+        margin-left: auto;
+        padding: 10px 12px;
+    }
+
+    .restaurants-page {
+        width: calc(100% - 30px);
+        padding: 23px 0 46px;
+    }
+
+    .page-heading h1 {
+        font-size: 25px;
+    }
+
+    .cuisine-bar {
+        gap: 3px;
+        margin-bottom: 23px;
+    }
+
+    .cuisine-chip {
+        padding: 10px 12px;
+    }
+
+    .sort-form {
+        padding: 0 5px;
+    }
+
+    .sort-form label {
+        display: none;
+    }
+
+    .sort-form select {
+        max-width: 130px;
+        font-size: 10px;
+    }
+
+    .restaurant-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 23px 12px;
+    }
+
+    .restaurant-cover {
+        height: 128px;
+        border-radius: 15px;
+    }
+
+    .restaurant-name-row {
+        align-items: flex-start;
+    }
+
+    .restaurant-name-row h2 {
+        font-size: 12px;
+    }
+
+    .rating {
+        font-size: 10px;
+    }
+
+    .restaurant-subline {
+        flex-wrap: wrap;
+        font-size: 10px;
+    }
+
+    .menu-layout {
+        display: block;
+        width: calc(100% - 28px);
+        padding: 14px 0 38px;
+    }
+
+    .restaurant-hero {
+        min-height: 150px;
+    }
+
+    .restaurant-hero > img {
+        width: 35%;
+        min-height: 150px;
+    }
+
+    .restaurant-hero-copy {
+        padding: 15px;
+    }
+
+    .restaurant-hero h1 {
+        font-size: 21px;
+    }
+
+    .hero-facts {
+        gap: 8px;
+        font-size: 10px;
+    }
+
+    .menu-categories {
+        gap: 17px;
+    }
+
+    .menu-products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 10px;
+    }
+
+    .dish-photo {
+        height: 145px;
+    }
+
+    .dish-info h2 {
+        font-size: 12px;
+    }
+
+    .cart-sidebar {
+        position: static;
+        display: none;
+    }
+
+    .footer-inner {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .footer-inner > span:nth-child(2) {
+        display: none;
+    }
+
+    .product-detail-section {
+        width: calc(100% - 28px);
+    }
+
+    .product-detail {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .product-detail-image,
+    .product-detail-image img {
+        min-height: 230px;
+    }
+
+    .product-detail-info {
+        padding: 12px 5px;
+    }
+}
+
+@media (max-width: 390px) {
+    .address-pill {
+        display: none;
+    }
+
+    .restaurant-cover {
+        height: 112px;
+    }
+
+    .restaurant-tags span {
+        font-size: 8px;
+    }
+
+    .footer-inner > span:last-child {
+        width: 100%;
+    }
+}

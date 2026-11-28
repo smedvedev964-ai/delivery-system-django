@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
-from django.db.models import Q, Count
+from django.db.models import Count, IntegerField, Q, Sum, Value
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, render
 
 from .models import Category, Product, Restaurant
@@ -11,7 +12,12 @@ def home(request):
             "products",
             filter=Q(products__is_active=True, products__stock__gt=0),
             distinct=True,
-        )
+        ),
+        sold_quantity=Coalesce(
+            Sum("products__orderitem__quantity"),
+            Value(0),
+            output_field=IntegerField(),
+        ),
     )
     query = request.GET.get("q", "").strip()
     cuisine = request.GET.get("cuisine", "").strip()
@@ -30,7 +36,10 @@ def home(request):
     elif sort == "delivery":
         restaurants = restaurants.order_by("delivery_min", "name")
     else:
-        restaurants = restaurants.order_by("-rating", "name")
+        # Популярность считается по реальному количеству проданных блюд.
+        restaurants = restaurants.order_by(
+            "-sold_quantity", "-rating_count", "-rating", "name"
+        )
 
     cuisines = list(
         Restaurant.objects.filter(is_active=True)

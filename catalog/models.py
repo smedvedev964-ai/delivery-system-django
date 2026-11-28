@@ -17,9 +17,22 @@ class Restaurant(models.Model):
     rating_count = models.PositiveIntegerField("Количество оценок", default=0)
     delivery_min = models.PositiveSmallIntegerField("Минимальное время доставки", default=30)
     delivery_max = models.PositiveSmallIntegerField("Максимальное время доставки", default=45)
+    class DeliveryPolicy(models.TextChoices):
+        FIXED = "fixed", "Фиксированная стоимость"
+        FREE = "free", "Бесплатная доставка"
+        THRESHOLD = "threshold", "Бесплатно от суммы заказа"
+
+    delivery_policy = models.CharField(
+        "Условия доставки", max_length=12,
+        choices=DeliveryPolicy.choices, default=DeliveryPolicy.FIXED,
+    )
     delivery_fee = models.DecimalField(
         "Стоимость доставки", max_digits=8, decimal_places=2,
-        default=0, validators=[MinValueValidator(0)]
+        default=149, validators=[MinValueValidator(0)]
+    )
+    free_delivery_threshold = models.DecimalField(
+        "Порог бесплатной доставки", max_digits=10, decimal_places=2,
+        null=True, blank=True, validators=[MinValueValidator(0)]
     )
     is_active = models.BooleanField("Работает", default=True)
     created_at = models.DateTimeField("Добавлен", auto_now_add=True)
