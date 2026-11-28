@@ -8,7 +8,7 @@
       {% if restaurant.image_url %}<img src="{{ restaurant.image_url }}" alt="{{ restaurant.name }}">{% endif %}
       <div class="restaurant-hero-copy">
         <span class="eyebrow">{{ restaurant.cuisine }}</span>
-        <h1>{{ restaurant.name }}</h1>
+        <div class="restaurant-title-row">{% if restaurant.logo_url %}<img class="restaurant-title-logo" src="{{ restaurant.logo_url }}" alt="Логотип {{ restaurant.name }}">{% endif %}<h1>{{ restaurant.name }}</h1></div>
         <p>{{ restaurant.description }}</p>
         <div class="hero-facts">
           <span>★ {{ restaurant.rating|floatformat:1 }}</span>
@@ -33,8 +33,13 @@
       {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
       <span>⌕</span><input type="search" name="q" value="{{ search_query }}" placeholder="Искать в меню {{ restaurant.name }}">
     </form>
-    <div id="menu" class="menu-products">
-      {% for product in products %}
+    <div id="menu" class="menu-category-sections">
+      {% regroup products by category.name as product_groups %}
+      {% for group in product_groups %}
+      <section class="menu-category-section" aria-labelledby="category-{{ forloop.counter }}">
+        <h2 id="category-{{ forloop.counter }}">{{ group.grouper }}</h2>
+        <div class="menu-products">
+      {% for product in group.list %}
       <article class="dish-card">
         <div class="dish-photo">
           {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
@@ -42,8 +47,11 @@
           {% else %}<div class="dish-placeholder">🍽</div>{% endif %}
           {% if user.is_authenticated %}{% include "cart_product_control.html" with product=product quantity=product.cart_quantity %}{% else %}<a class="add-dish" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" aria-label="Войдите, чтобы добавить {{ product.name }}" title="Войдите, чтобы добавить в корзину">+</a>{% endif %}
         </div>
-        <div class="dish-info"><span class="dish-category">{{ product.category.name }}</span><h2>{{ product.name }}</h2><p>{{ product.description|default:"Вкусное блюдо из меню ресторана." }}</p><strong>{{ product.price }} ₽</strong></div>
+        <div class="dish-info"><span class="dish-category">{{ product.category.name }}</span><h3>{{ product.name }}</h3><p>{{ product.description|default:"Вкусное блюдо из меню ресторана." }}</p><strong>{{ product.price }} ₽</strong></div>
       </article>
+      {% endfor %}
+        </div>
+      </section>
       {% empty %}
       <div class="empty-restaurants"><h2>Блюда не найдены</h2><p>Попробуйте изменить поиск или категорию.</p><a href="{% url 'restaurant_detail' restaurant.slug %}">Показать всё меню</a></div>
       {% endfor %}

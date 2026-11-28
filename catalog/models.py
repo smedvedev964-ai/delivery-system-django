@@ -10,6 +10,7 @@ class Restaurant(models.Model):
     cuisine = models.CharField("Кухня", max_length=80, db_index=True)
     address = models.CharField("Адрес", max_length=255, blank=True)
     image_url = models.URLField("Фотография ресторана", blank=True)
+    logo_url = models.URLField("Логотип", blank=True)
     rating = models.DecimalField(
         "Рейтинг", max_digits=2, decimal_places=1,
         default=0, validators=[MinValueValidator(0), MaxValueValidator(5)]

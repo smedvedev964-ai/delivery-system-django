@@ -14,7 +14,7 @@ class RestaurantAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     fieldsets = (
         ("Основная информация", {
-            "fields": ("name", "slug", "description", "cuisine", "address", "image_url", "is_active"),
+            "fields": ("name", "slug", "description", "cuisine", "address", "image_url", "logo_url", "is_active"),
         }),
         ("Рейтинг и доставка", {
             "fields": (

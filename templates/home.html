@@ -24,7 +24,8 @@
     {% for restaurant in restaurants %}
       <a class="restaurant-card" href="{% url 'restaurant_detail' restaurant.slug %}">
         <div class="restaurant-cover">
-          {% if restaurant.image_url %}<img src="{{ restaurant.image_url }}" alt="{{ restaurant.name }}" loading="lazy">{% else %}<div class="cover-fallback">Везём</div>{% endif %}
+          {% if restaurant.image_url %}<img class="restaurant-cover-photo" src="{{ restaurant.image_url }}" alt="{{ restaurant.name }}" loading="lazy">{% else %}<div class="cover-fallback">Везём</div>{% endif %}
+          {% if restaurant.logo_url %}<span class="restaurant-logo-badge"><img src="{{ restaurant.logo_url }}" alt="Логотип {{ restaurant.name }}" loading="lazy"></span>{% endif %}
           <span class="favorite-mark" aria-hidden="true">♡</span>
         </div>
         <div class="restaurant-meta">

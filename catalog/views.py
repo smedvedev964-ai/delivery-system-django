@@ -71,7 +71,7 @@ def restaurant_detail(request, slug):
 
     products = restaurant.products.filter(
         is_active=True, stock__gt=0
-    ).select_related("category")
+    ).select_related("category").order_by("category__name", "name")
     query = request.GET.get("q", "").strip()
     category_id = request.GET.get("category", "").strip()
     if query:
