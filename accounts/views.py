@@ -26,17 +26,14 @@ def profile(request):
         form.save()
         messages.success(request, "Контактные данные сохранены.")
         return redirect("accounts:profile")
-    addresses = Address.objects.filter(user=request.user)
     return render(request, "accounts/profile.html", {
         "form": form,
-        "addresses": addresses,
         "has_name": bool(request.user.first_name),
         "has_phone": bool(request.user.phone),
-        "has_address": addresses.exists(),
     })
 
 
-ONBOARDING_STEPS = ("name", "phone", "address")
+ONBOARDING_STEPS = ("name", "phone")
 
 
 @login_required
@@ -45,8 +42,6 @@ def onboarding(request):
         return redirect("accounts:onboarding_step", step="name")
     if not request.user.phone:
         return redirect("accounts:onboarding_step", step="phone")
-    if not Address.objects.filter(user=request.user).exists():
-        return redirect("accounts:onboarding_step", step="address")
     return redirect("accounts:onboarding_done")
 
 
@@ -55,30 +50,20 @@ def onboarding_step(request, step):
     if step not in ONBOARDING_STEPS:
         return redirect("accounts:onboarding")
     form_classes = {"name": NameStepForm, "phone": PhoneStepForm}
-    if step in form_classes:
-        form = form_classes[step](request.POST or None, instance=request.user)
-    else:
-        form = AddressStepForm(request.POST or None)
+    form = form_classes[step](request.POST or None, instance=request.user)
 
     if request.method == "POST":
         if "skip" in request.POST:
             messages.info(request, "Этот шаг можно заполнить позже в профиле.")
             return _next_onboarding_step(step)
         if form.is_valid():
-            if step == "address":
-                address = form.save(commit=False)
-                address.user = request.user
-                address.is_default = not Address.objects.filter(user=request.user).exists()
-                address.save()
-            else:
-                form.save()
+            form.save()
             messages.success(request, "Сохранено.")
             return _next_onboarding_step(step)
 
     titles = {
         "name": "Как вас зовут?",
         "phone": "Номер телефона",
-        "address": "Адрес доставки",
     }
     return render(request, "accounts/onboarding_step.html", {
         "form": form,
@@ -103,15 +88,16 @@ def onboarding_done(request):
 
 @login_required
 def add_address(request):
-    form = AddressStepForm(request.POST or None)
+    address = Address.objects.filter(user=request.user).first()
+    form = AddressStepForm(request.POST or None, instance=address)
     if request.method == "POST" and form.is_valid():
-        address = form.save(commit=False)
-        address.user = request.user
-        address.is_default = not Address.objects.filter(user=request.user).exists()
-        address.save()
-        messages.success(request, "Адрес добавлен в профиль.")
-        return redirect("accounts:profile")
-    return render(request, "accounts/address_form.html", {"form": form})
+        saved_address = form.save(commit=False)
+        saved_address.user = request.user
+        saved_address.is_default = True
+        saved_address.save()
+        messages.success(request, "Адрес доставки сохранён.")
+        return redirect("home")
+    return render(request, "accounts/address_form.html", {"form": form, "address": address})
 
 
 @login_required
@@ -119,9 +105,11 @@ def edit_address(request, address_id):
     address = get_object_or_404(Address, pk=address_id, user=request.user)
     form = AddressStepForm(request.POST or None, instance=address)
     if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Адрес обновлён.")
-        return redirect("accounts:profile")
+        saved_address = form.save(commit=False)
+        saved_address.is_default = True
+        saved_address.save()
+        messages.success(request, "Адрес доставки обновлён.")
+        return redirect("home")
     return render(request, "accounts/address_form.html", {"form": form, "address": address})
 
 

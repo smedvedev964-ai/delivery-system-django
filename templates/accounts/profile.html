@@ -4,14 +4,11 @@
 <section class="container py-5" style="max-width: 760px">
   <h1 class="mb-2">Мой профиль</h1>
   <p class="text-muted">Аккаунт: {{ user.email }}</p>
-  {% if not has_name or not has_phone or not has_address %}<div class="alert alert-info"><strong>Профиль заполнен не полностью.</strong> Заказ можно оформить, когда будут указаны имя, телефон и адрес.<div class="mt-2"><a href="{% url 'accounts:onboarding' %}">Продолжить заполнение</a></div></div>{% endif %}
+  {% if not has_name or not has_phone %}<div class="alert alert-info"><strong>Профиль заполнен не полностью.</strong> Для заказа укажите имя и телефон.<div class="mt-2"><a href="{% url 'accounts:onboarding' %}">Продолжить заполнение</a></div></div>{% endif %}
   <form method="post" class="card mb-4"><div class="card-body">{% csrf_token %}<h2 class="h5">Контактные данные</h2>
     {% for field in form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}</div>{% endfor %}
     <button class="btn btn-dark" type="submit">Сохранить изменения</button>
   </div></form>
-  <div class="card"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Адреса доставки</h2><a class="btn btn-outline-dark btn-sm" href="{% url 'accounts:add_address' %}">Добавить адрес</a></div>
-    {% for address in addresses %}<div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-center gap-3"><div><strong>{{ address.city }}, {{ address.street }}, д. {{ address.house }}</strong>{% if address.apartment %}, кв. {{ address.apartment }}{% endif %}{% if address.is_default %}<span class="badge text-bg-light ms-2">Основной</span>{% endif %}{% if address.comment %}<div class="small text-muted">{{ address.comment }}</div>{% endif %}</div><div class="d-flex gap-2"><a class="btn btn-sm btn-outline-secondary" href="{% url 'accounts:edit_address' address.id %}">Изменить</a><form method="post" action="{% url 'accounts:delete_address' address.id %}" onsubmit="return confirm('Удалить этот адрес?')">{% csrf_token %}<button class="btn btn-sm btn-outline-danger" type="submit">Удалить</button></form></div></div>{% empty %}<p class="text-muted mb-0">Адреса пока не добавлены. Их можно сохранить сейчас или ввести при оформлении заказа.</p>{% endfor %}
-  </div></div>
   <a class="btn btn-link mt-3 px-0" href="{% url 'cart:detail' %}">Перейти в корзину</a>
 </section>
 {% endblock %}

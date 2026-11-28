@@ -24,7 +24,7 @@
     <form class="global-search" method="get" action="{% url 'home' %}">
       <span>⌕</span><input type="search" name="q" placeholder="Искать рестораны и кухню" value="{{ search_query|default:'' }}" aria-label="Поиск ресторанов">
     </form>
-    <button class="address-pill" type="button" title="Адрес можно будет указать в личном кабинете">⌖ <span>Укажите адрес</span></button>
+    <a class="address-pill" href="{% if saved_delivery_address %}{% url 'accounts:edit_address' saved_delivery_address.id %}{% else %}{% url 'accounts:add_address' %}{% endif %}" title="{% if saved_delivery_address %}Изменить адрес доставки{% else %}Указать адрес доставки{% endif %}">⌖ <span>{% if saved_delivery_address %}{{ saved_delivery_address.street }}, д. {{ saved_delivery_address.house }}{% else %}Укажите адрес{% endif %}</span></a>
     <div class="top-time">◷ <span>Сейчас</span></div>
     <a class="top-icon cart-icon-link" href="{% url 'cart:detail' %}" aria-label="Корзина" title="Корзина">🛒{% if cart_has_items %}<span class="cart-dot" aria-hidden="true"></span>{% endif %}</a>
     {% if user.is_authenticated %}

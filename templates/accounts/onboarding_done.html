@@ -1,5 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Профиль настроен — Везём{% endblock %}
 {% block content %}
-<section class="container py-5 text-center" style="max-width: 620px"><div class="fs-1">✓</div><h1>Профиль настроен, {{ user.first_name|default:"добро пожаловать" }}!</h1><p class="text-muted">Пропущенные данные можно заполнить в профиле. Для оформления заказа понадобятся имя, телефон и адрес доставки.</p><a class="btn btn-dark" href="{% url 'home' %}">Выбрать ресторан</a><div class="mt-3"><a href="{% url 'accounts:profile' %}">Перейти в профиль</a></div></section>
+<section class="container py-5 text-center" style="max-width: 620px"><div class="fs-1">✓</div><h1>Профиль настроен, {{ user.first_name|default:"добро пожаловать" }}!</h1><p class="text-muted">Пропущенные данные можно заполнить в профиле. Адрес доставки можно указать при оформлении заказа.</p><a class="btn btn-dark" href="{% url 'home' %}">Выбрать ресторан</a><div class="mt-3"><a href="{% url 'accounts:profile' %}">Перейти в профиль</a></div></section>
 {% endblock %}

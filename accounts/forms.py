@@ -150,7 +150,7 @@ class AddressStepForm(forms.ModelForm):
             "street": "Улица",
             "house": "Дом",
             "apartment": "Квартира",
-            "comment": "Как вас найти",
+            "comment": "Комментарий к адресу",
         }
         widgets = {"comment": forms.TextInput(attrs={"placeholder": "Подъезд, этаж, код домофона"})}
 
