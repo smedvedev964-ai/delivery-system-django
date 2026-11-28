@@ -48,9 +48,11 @@ def add_to_cart(request, product_id):
     with transaction.atomic():
         current = list(cart.items.select_related("product").select_for_update())
         existing = next((item for item in current if item.product_id == product.pk), None)
-        if any(item.product.restaurant_id != product.restaurant_id for item in current):
-            messages.error(request, "В одной корзине могут быть блюда только одного ресторана. Очистите корзину перед сменой ресторана.")
-        elif quantity + (existing.quantity if existing else 0) > product.stock:
+        if current and any(item.product.restaurant_id != product.restaurant_id for item in current):
+            cart.items.all().delete()
+            current = []
+            existing = None
+        if quantity + (existing.quantity if existing else 0) > product.stock:
             messages.error(request, f"Доступно только {product.stock} шт. блюда «{product.name}».")
         elif existing:
             existing.quantity += quantity

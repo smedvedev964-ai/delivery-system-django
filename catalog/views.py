@@ -60,6 +60,15 @@ def home(request):
 
 def restaurant_detail(request, slug):
     restaurant = get_object_or_404(Restaurant, slug=slug, is_active=True)
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+        if cart:
+            cart_restaurants = set(
+                cart.items.values_list("product__restaurant_id", flat=True).distinct()
+            )
+            if cart_restaurants and cart_restaurants != {restaurant.pk}:
+                cart.items.all().delete()
+
     products = restaurant.products.filter(
         is_active=True, stock__gt=0
     ).select_related("category")
